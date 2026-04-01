@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Thin gold divider utility */
+.gold-divider {
+  width: 40px;
+  height: 1px;
+  background-color: #C4972A;
+}
