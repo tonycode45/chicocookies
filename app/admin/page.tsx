@@ -11,6 +11,15 @@ type OrderStatus =
   | 'completed'
   | 'cancelled'
 
+interface OrderItem {
+  tierId: string
+  tierLabel: string
+  qty: number
+  unitPrice: number
+  lineTotal: number
+  cookies: number
+}
+
 interface Order {
   id: string
   createdAt: string
@@ -20,9 +29,7 @@ interface Order {
   fulfillment: 'pickup' | 'delivery'
   address?: string
   city?: string
-  tierId: string
-  tierLabel: string
-  packs: number
+  items: OrderItem[]
   cookiesTotal: number
   subtotal: number
   deliveryFee: number
@@ -62,7 +69,6 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   cancelled: 'bg-red-50 text-red-600 border-red-200',
 }
 
-// Quick status flow for one-tap mobile updates
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   new: 'confirmed',
   confirmed: 'baking',
@@ -163,31 +169,31 @@ export default function AdminPage() {
   /* ── Login ── */
   if (!savedPassword) {
     return (
-      <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#FAF8F4] dark:bg-stone-950 flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <p className="font-serif text-2xl text-stone-900 tracking-wide mb-1">Chicoine Cookies</p>
-            <p className="text-xs tracking-widest uppercase text-stone-400 font-sans">Admin Access</p>
+            <p className="font-serif text-2xl text-stone-900 dark:text-stone-100 tracking-wide mb-1">Chicoine Cookies</p>
+            <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 font-sans">Admin Access</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-xs tracking-widest uppercase text-stone-400 mb-2 font-sans">
+              <label className="block text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-2 font-sans">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-stone-300 py-2.5 text-stone-900 placeholder-stone-300 text-sm focus:outline-none focus:border-stone-700 transition-colors"
+                className="w-full bg-transparent border-b border-stone-300 dark:border-stone-600 py-2.5 text-stone-900 dark:text-stone-100 placeholder-stone-300 dark:placeholder-stone-600 text-sm focus:outline-none focus:border-stone-700 dark:focus:border-stone-400 transition-colors"
                 placeholder="Enter admin password"
                 autoFocus
               />
             </div>
-            {error && <p className="text-red-500 text-xs">{error}</p>}
+            {error && <p className="text-red-500 dark:text-red-400 text-xs">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-stone-900 hover:bg-stone-700 disabled:opacity-50 text-white text-xs tracking-widest uppercase font-sans font-medium py-3.5 transition-colors mt-2"
+              className="w-full bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 text-white dark:text-stone-900 text-xs tracking-widest uppercase font-sans font-medium py-3.5 transition-colors mt-2"
             >
               {loading ? 'Verifying…' : 'Login'}
             </button>
@@ -205,11 +211,11 @@ export default function AdminPage() {
   const pastOrders = orders.filter((o) => ['completed', 'cancelled'].includes(o.status))
 
   return (
-    <div className="min-h-screen bg-stone-100 font-sans">
+    <div className="min-h-screen bg-stone-100 dark:bg-stone-900 font-sans">
       {/* Header */}
       <div className="bg-stone-950 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <span className="font-serif text-cream-DEFAULT">Chicoine</span>
+          <span className="font-serif text-stone-100">Chicoine</span>
           <span className="text-stone-600 text-xs">—</span>
           <span className="text-xs tracking-widest uppercase text-stone-500">Orders</span>
         </div>
@@ -244,22 +250,21 @@ export default function AdminPage() {
 
         {/* ── Shop Settings Panel ── */}
         {showSettings && settings && (
-          <div className="bg-white border border-stone-200 mt-4 mb-5">
-            <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-              <p className="text-xs tracking-widest uppercase text-stone-500">Shop Settings</p>
+          <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 mt-4 mb-5">
+            <div className="px-5 py-4 border-b border-stone-100 dark:border-stone-700 flex items-center justify-between">
+              <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400">Shop Settings</p>
               {settingsSaving && <span className="text-xs text-stone-400">Saving…</span>}
             </div>
 
-            {/* Accept / Pause toggle */}
-            <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-stone-100 dark:border-stone-700 flex items-center justify-between">
               <div>
-                <p className="text-sm text-stone-800 font-medium">Accepting Orders</p>
-                <p className="text-xs text-stone-400 mt-0.5">Customers can place orders on the website</p>
+                <p className="text-sm text-stone-800 dark:text-stone-200 font-medium">Accepting Orders</p>
+                <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">Customers can place orders on the website</p>
               </div>
               <button
                 onClick={() => saveSettings({ acceptingOrders: !settings.acceptingOrders })}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  settings.acceptingOrders ? 'bg-green-500' : 'bg-stone-300'
+                  settings.acceptingOrders ? 'bg-green-500' : 'bg-stone-300 dark:bg-stone-600'
                 }`}
               >
                 <span
@@ -272,46 +277,46 @@ export default function AdminPage() {
 
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs tracking-widest uppercase text-stone-400 mb-1.5">Batch Info</label>
+                <label className="block text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-1.5">Batch Info</label>
                 <input
                   type="text"
                   value={settings.batchInfo}
                   onChange={(e) => setSettings({ ...settings, batchInfo: e.target.value })}
                   onBlur={() => saveSettings({ batchInfo: settings.batchInfo })}
-                  className="w-full border-b border-stone-200 py-1.5 text-sm text-stone-800 focus:outline-none focus:border-stone-600 bg-transparent"
+                  className="w-full border-b border-stone-200 dark:border-stone-600 py-1.5 text-sm text-stone-800 dark:text-stone-200 focus:outline-none focus:border-stone-600 dark:focus:border-stone-400 bg-transparent"
                   placeholder="Next batch ready at 4pm today"
                 />
               </div>
               <div>
-                <label className="block text-xs tracking-widest uppercase text-stone-400 mb-1.5">Order Cutoff Time</label>
+                <label className="block text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-1.5">Order Cutoff Time</label>
                 <input
                   type="text"
                   value={settings.cutoffTime}
                   onChange={(e) => setSettings({ ...settings, cutoffTime: e.target.value })}
                   onBlur={() => saveSettings({ cutoffTime: settings.cutoffTime })}
-                  className="w-full border-b border-stone-200 py-1.5 text-sm text-stone-800 focus:outline-none focus:border-stone-600 bg-transparent"
+                  className="w-full border-b border-stone-200 dark:border-stone-600 py-1.5 text-sm text-stone-800 dark:text-stone-200 focus:outline-none focus:border-stone-600 dark:focus:border-stone-400 bg-transparent"
                   placeholder="2:00 PM"
                 />
               </div>
               <div>
-                <label className="block text-xs tracking-widest uppercase text-stone-400 mb-1.5">Available Spots Today</label>
+                <label className="block text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-1.5">Available Spots Today</label>
                 <input
                   type="number"
                   min={0}
                   value={settings.availableSpots}
                   onChange={(e) => setSettings({ ...settings, availableSpots: Number(e.target.value) })}
                   onBlur={() => saveSettings({ availableSpots: settings.availableSpots })}
-                  className="w-full border-b border-stone-200 py-1.5 text-sm text-stone-800 focus:outline-none focus:border-stone-600 bg-transparent"
+                  className="w-full border-b border-stone-200 dark:border-stone-600 py-1.5 text-sm text-stone-800 dark:text-stone-200 focus:outline-none focus:border-stone-600 dark:focus:border-stone-400 bg-transparent"
                 />
               </div>
               <div>
-                <label className="block text-xs tracking-widest uppercase text-stone-400 mb-1.5">Pickup Instructions</label>
+                <label className="block text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-1.5">Pickup Instructions</label>
                 <input
                   type="text"
                   value={settings.pickupInstructions}
                   onChange={(e) => setSettings({ ...settings, pickupInstructions: e.target.value })}
                   onBlur={() => saveSettings({ pickupInstructions: settings.pickupInstructions })}
-                  className="w-full border-b border-stone-200 py-1.5 text-sm text-stone-800 focus:outline-none focus:border-stone-600 bg-transparent"
+                  className="w-full border-b border-stone-200 dark:border-stone-600 py-1.5 text-sm text-stone-800 dark:text-stone-200 focus:outline-none focus:border-stone-600 dark:focus:border-stone-400 bg-transparent"
                   placeholder="Pickup 4–7pm…"
                 />
               </div>
@@ -322,7 +327,7 @@ export default function AdminPage() {
         {/* ── Summary pills ── */}
         {orders.length > 0 && (
           <div className="flex gap-2 mt-4 mb-4 flex-wrap">
-            <span className="bg-white border border-stone-200 text-xs px-3 py-1.5 text-stone-600">
+            <span className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs px-3 py-1.5 text-stone-600 dark:text-stone-400">
               {orders.length} total orders
             </span>
             {weeklyDropCount > 0 && (
@@ -341,15 +346,14 @@ export default function AdminPage() {
         {loading && <p className="text-stone-500 text-center py-12 text-sm">Loading…</p>}
 
         {!loading && orders.length === 0 && (
-          <div className="bg-white border border-stone-200 p-12 text-center mt-4">
-            <p className="font-serif text-stone-500 text-xl">No orders yet</p>
+          <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-12 text-center mt-4">
+            <p className="font-serif text-stone-500 dark:text-stone-400 text-xl">No orders yet</p>
           </div>
         )}
 
-        {/* Active orders */}
         {activeOrders.length > 0 && (
           <div className="mt-2">
-            <p className="text-xs tracking-widest uppercase text-stone-500 mb-3">
+            <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 mb-3">
               Active ({activeOrders.length})
             </p>
             <div className="space-y-3">
@@ -360,10 +364,9 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Past orders */}
         {pastOrders.length > 0 && (
           <div className="mt-8">
-            <p className="text-xs tracking-widest uppercase text-stone-400 mb-3">
+            <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-3">
               Past ({pastOrders.length})
             </p>
             <div className="space-y-3">
@@ -388,12 +391,11 @@ function OrderCard({
   const next = NEXT_STATUS[order.status]
 
   return (
-    <div className="bg-white border border-stone-200">
-      {/* Top row */}
-      <div className="p-4 border-b border-stone-100 flex flex-wrap items-start justify-between gap-2">
+    <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700">
+      <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex flex-wrap items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-serif text-stone-900 text-base">{order.customerName}</span>
+            <span className="font-serif text-stone-900 dark:text-stone-100 text-base">{order.customerName}</span>
             <span className={`text-[10px] px-2 py-0.5 border tracking-widest uppercase font-medium ${STATUS_COLORS[order.status]}`}>
               {STATUS_LABELS[order.status]}
             </span>
@@ -408,70 +410,67 @@ function OrderCard({
               </span>
             )}
           </div>
-          <p className="text-stone-400 text-xs mt-0.5 font-mono">
+          <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5 font-mono">
             {order.id} · {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        <p className="font-serif text-stone-900 text-lg tabular-nums">${order.total}.00</p>
+        <p className="font-serif text-stone-900 dark:text-stone-100 text-lg tabular-nums">${order.total}.00</p>
       </div>
 
-      {/* Details */}
-      <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border-b border-stone-100">
+      <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border-b border-stone-100 dark:border-stone-700">
         <div>
-          <p className="tracking-widest uppercase text-stone-400 mb-0.5">Method</p>
-          <p className="text-stone-700 capitalize">{order.fulfillment}</p>
+          <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Method</p>
+          <p className="text-stone-700 dark:text-stone-300 capitalize">{order.fulfillment}</p>
         </div>
         <div>
-          <p className="tracking-widest uppercase text-stone-400 mb-0.5">Order</p>
-          <p className="text-stone-700">{order.tierLabel} × {order.packs} — {order.cookiesTotal} cookies</p>
+          <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Order</p>
+          <p className="text-stone-700 dark:text-stone-300">
+            {order.items.map((item) => `${item.qty}× ${item.tierLabel}`).join(', ')} — {order.cookiesTotal} cookies
+          </p>
         </div>
         <div>
-          <p className="tracking-widest uppercase text-stone-400 mb-0.5">Phone</p>
-          <p className="text-stone-700">{order.phone}</p>
+          <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Phone</p>
+          <p className="text-stone-700 dark:text-stone-300">{order.phone}</p>
         </div>
         {order.referredBy && (
           <div>
-            <p className="tracking-widest uppercase text-stone-400 mb-0.5">Referred By</p>
-            <p className="text-stone-700 font-mono text-[10px]">{order.referredBy}</p>
+            <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Referred By</p>
+            <p className="text-stone-700 dark:text-stone-300 font-mono text-[10px]">{order.referredBy}</p>
           </div>
         )}
         {order.fulfillment === 'delivery' && order.address && (
           <div className="col-span-2">
-            <p className="tracking-widest uppercase text-stone-400 mb-0.5">Address</p>
-            <p className="text-stone-700">{order.address}, {order.city}</p>
+            <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Address</p>
+            <p className="text-stone-700 dark:text-stone-300">{order.address}, {order.city}</p>
           </div>
         )}
         {order.email && (
           <div className="col-span-2 sm:col-span-1">
-            <p className="tracking-widest uppercase text-stone-400 mb-0.5">Email</p>
-            <p className="text-stone-700 truncate">{order.email}</p>
+            <p className="tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-0.5">Email</p>
+            <p className="text-stone-700 dark:text-stone-300 truncate">{order.email}</p>
           </div>
         )}
       </div>
 
       {order.notes && (
-        <div className="px-4 py-2.5 bg-stone-50 border-b border-stone-100 text-xs text-stone-500">
-          <span className="tracking-widest uppercase text-stone-400">Notes: </span>{order.notes}
+        <div className="px-4 py-2.5 bg-stone-50 dark:bg-stone-700 border-b border-stone-100 dark:border-stone-600 text-xs text-stone-500 dark:text-stone-400">
+          <span className="tracking-widest uppercase text-stone-400 dark:text-stone-500">Notes: </span>{order.notes}
         </div>
       )}
 
-      {/* Status controls */}
       <div className="p-3 flex items-center gap-2 flex-wrap">
-        {/* One-tap advance button */}
         {next && (
           <button
             onClick={() => onStatusChange(order.id, next)}
-            className="bg-stone-900 hover:bg-stone-700 text-white text-[10px] tracking-widest uppercase px-3 py-2 transition-colors font-medium"
+            className="bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-stone-300 text-white dark:text-stone-900 text-[10px] tracking-widest uppercase px-3 py-2 transition-colors font-medium"
           >
             Mark {STATUS_LABELS[next]} →
           </button>
         )}
-
-        {/* Full dropdown */}
         <select
           value={order.status}
           onChange={(e) => onStatusChange(order.id, e.target.value as OrderStatus)}
-          className="text-xs border border-stone-200 px-2 py-1.5 text-stone-700 bg-white focus:outline-none focus:border-stone-400 transition-colors"
+          className="text-xs border border-stone-200 dark:border-stone-600 px-2 py-1.5 text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 focus:outline-none focus:border-stone-400 transition-colors"
         >
           {(Object.entries(STATUS_LABELS) as [OrderStatus, string][]).map(([val, label]) => (
             <option key={val} value={val}>{label}</option>

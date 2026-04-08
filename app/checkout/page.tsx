@@ -265,7 +265,7 @@ export default function CheckoutPage() {
                   <input type="checkbox" checked={weeklyDrop} onChange={(e) => setWeeklyDrop(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100" />
                   <div>
                     <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">Reserve my spot in the weekly batch</p>
-                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">We&apos;ll reach out to set up a recurring order</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">We bake weekly — check this and we&apos;ll lock you in automatically each week</p>
                   </div>
                 </label>
               </div>
@@ -274,7 +274,7 @@ export default function CheckoutPage() {
                   <input type="checkbox" checked={isEventOrder} onChange={(e) => setIsEventOrder(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100" />
                   <div>
                     <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">This is for an event or bulk order</p>
-                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">We&apos;ll follow up to discuss quantity and timing</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">Ordering for a party or large group? We&apos;ll follow up to confirm quantity and timing</p>
                   </div>
                 </label>
               </div>

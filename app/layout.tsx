@@ -23,7 +23,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{__html: `try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}`}} />
+      </head>
       <body className={`${playfair.variable} ${inter.variable} font-sans bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased`}>
         <ThemeProvider>
           <CartProvider>{children}</CartProvider>

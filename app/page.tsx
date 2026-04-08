@@ -192,7 +192,7 @@ export default function HomePage() {
           <h2 className="font-serif text-4xl text-stone-900 dark:text-stone-100 mb-14">Simple from start to finish</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { n: '01', title: 'Choose Your Quantity', desc: 'Select how many dozens you need. Minimum one dozen.' },
+              { n: '01', title: 'Choose Your Quantity', desc: 'Pick a size — 2, 6, or 12 cookies per pack. Add as many packs as you need.' },
               { n: '02', title: 'Pickup or Delivery', desc: 'Pickup is complimentary. Local delivery is a flat $5.' },
               { n: '03', title: 'Freshly Baked', desc: 'We confirm your order, bake fresh, and you enjoy.' },
             ].map(({ n, title, desc }) => (

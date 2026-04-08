@@ -25,8 +25,7 @@ export async function POST(req: NextRequest) {
       fulfillment,
       address,
       city,
-      tierId,
-      packs,
+      items,
       notes,
       weeklyDrop,
       isEventOrder,
@@ -39,14 +38,30 @@ export async function POST(req: NextRequest) {
     if (fulfillment === 'delivery' && (!address?.trim() || !city?.trim())) {
       return NextResponse.json({ error: 'Address and city required for delivery' }, { status: 400 })
     }
-
-    const tier = getTierById(tierId as TierId)
-    if (!tier) {
-      return NextResponse.json({ error: 'Invalid tier selected' }, { status: 400 })
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'At least one item is required' }, { status: 400 })
     }
 
-    const numPacks = Math.max(1, Number(packs) || 1)
-    const subtotal = tier.price * numPacks
+    // Validate and resolve each item
+    const resolvedItems = []
+    for (const item of items) {
+      const tier = getTierById(item.tierId as TierId)
+      if (!tier) {
+        return NextResponse.json({ error: `Invalid tier: ${item.tierId}` }, { status: 400 })
+      }
+      const qty = Math.max(1, Number(item.qty) || 1)
+      resolvedItems.push({
+        tierId: tier.id,
+        tierLabel: tier.label,
+        qty,
+        unitPrice: tier.price,
+        lineTotal: tier.price * qty,
+        cookies: tier.cookies * qty,
+      })
+    }
+
+    const subtotal = resolvedItems.reduce((sum, i) => sum + i.lineTotal, 0)
+    const cookiesTotal = resolvedItems.reduce((sum, i) => sum + i.cookies, 0)
     const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
     const total = subtotal + deliveryFee
 
@@ -57,10 +72,8 @@ export async function POST(req: NextRequest) {
       fulfillment,
       address: address?.trim() || undefined,
       city: city?.trim() || undefined,
-      tierId: tier.id,
-      tierLabel: tier.label,
-      packs: numPacks,
-      cookiesTotal: tier.cookies * numPacks,
+      items: resolvedItems,
+      cookiesTotal,
       subtotal,
       deliveryFee,
       total,

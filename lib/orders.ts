@@ -10,6 +10,15 @@ export type OrderStatus =
   | 'completed'
   | 'cancelled'
 
+export interface OrderItem {
+  tierId: string
+  tierLabel: string
+  qty: number
+  unitPrice: number
+  lineTotal: number
+  cookies: number
+}
+
 export interface Order {
   id: string
   createdAt: string
@@ -19,9 +28,7 @@ export interface Order {
   fulfillment: 'pickup' | 'delivery'
   address?: string
   city?: string
-  tierId: string
-  tierLabel: string
-  packs: number
+  items: OrderItem[]
   cookiesTotal: number
   subtotal: number
   deliveryFee: number
