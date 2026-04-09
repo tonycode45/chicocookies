@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import { useCart } from '@/context/CartContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { TIERS, TierId } from '@/lib/tiers'
 
 const DELIVERY_FEE = 5
@@ -31,11 +32,12 @@ function Field({
 }
 
 const inputClass =
-  'w-full border-b border-stone-300 dark:border-stone-600 bg-transparent py-2.5 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-600 text-sm focus:outline-none focus:border-stone-900 dark:focus:border-stone-400 transition-colors'
+  'w-full border-b border-stone-300 dark:border-stone-600 bg-transparent py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-600 text-sm focus:outline-none focus:border-stone-900 dark:focus:border-stone-400 transition-colors'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, cartLines, hasItems, subtotal, setQty, clearCart } = useCart()
+  const { t } = useLanguage()
   const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery'>('pickup')
   const [form, setForm] = useState({
     customerName: '',
@@ -62,11 +64,11 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const errs: Record<string, string> = {}
-    if (!form.customerName.trim()) errs.customerName = 'Name is required'
-    if (!form.phone.trim()) errs.phone = 'Phone number is required'
+    if (!form.customerName.trim()) errs.customerName = t.checkout.errors.nameRequired
+    if (!form.phone.trim()) errs.phone = t.checkout.errors.phoneRequired
     if (fulfillment === 'delivery') {
-      if (!form.address.trim()) errs.address = 'Address is required for delivery'
-      if (!form.city.trim()) errs.city = 'City is required for delivery'
+      if (!form.address.trim()) errs.address = t.checkout.errors.addressRequired
+      if (!form.city.trim()) errs.city = t.checkout.errors.cityRequired
     }
     return errs
   }
@@ -108,51 +110,51 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[#FAF8F4] dark:bg-stone-950">
       <Header />
-      <div className="pt-28 pb-20 px-6">
+      <div className="pt-28 pb-20 px-4 sm:px-6">
         <div className="max-w-xl mx-auto">
 
           {/* Page title */}
           <div className="mb-10">
-            <p className="text-xs tracking-widest uppercase text-gold mb-3 font-sans">Your Order</p>
-            <h1 className="font-serif text-4xl text-stone-900 dark:text-stone-100">Checkout</h1>
+            <p className="text-xs tracking-widest uppercase text-gold mb-3 font-sans">{t.checkout.badge}</p>
+            <h1 className="font-serif text-4xl text-stone-900 dark:text-stone-100">{t.checkout.headline}</h1>
             <div className="gold-divider mt-4" />
           </div>
 
-          {/* Item selector — all 3 tiers with individual qty */}
+          {/* Item selector */}
           <div className="mb-8">
-            <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 font-sans mb-3">Select Items</p>
+            <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 font-sans mb-3">{t.checkout.selectItems}</p>
             <div className="space-y-2">
-              {TIERS.map((t) => {
-                const qty = items[t.id as TierId] ?? 0
+              {TIERS.map((tier) => {
+                const qty = items[tier.id as TierId] ?? 0
                 return (
                   <div
-                    key={t.id}
-                    className={`flex items-center justify-between border px-5 py-4 transition-colors ${
+                    key={tier.id}
+                    className={`flex items-center justify-between border px-4 sm:px-5 py-4 transition-colors ${
                       qty > 0
                         ? 'border-gold bg-amber-50/20 dark:bg-amber-950/20'
                         : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900'
                     }`}
                   >
                     <div>
-                      <p className="font-serif text-stone-900 dark:text-stone-100 text-base">{t.label}</p>
+                      <p className="font-serif text-stone-900 dark:text-stone-100 text-base">{tier.label}</p>
                       <p className="text-stone-400 dark:text-stone-500 text-xs font-sans mt-0.5">
-                        ${t.price}.00 per pack
-                        {t.popular && <span className="ml-2 text-gold">· Most popular</span>}
+                        ${tier.price}.00 {t.checkout.perPack}
+                        {tier.popular && <span className="ml-2 text-gold">{t.checkout.popular}</span>}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => setQty(t.id as TierId, qty - 1)}
-                        className="w-7 h-7 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:border-stone-900 dark:hover:border-stone-400 transition-colors text-base leading-none"
+                        onClick={() => setQty(tier.id as TierId, qty - 1)}
+                        className="w-10 h-10 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:border-stone-900 dark:hover:border-stone-400 transition-colors text-lg leading-none"
                       >
                         −
                       </button>
-                      <span className="font-serif text-lg text-stone-900 dark:text-stone-100 w-4 text-center tabular-nums">{qty}</span>
+                      <span className="font-serif text-lg text-stone-900 dark:text-stone-100 w-5 text-center tabular-nums">{qty}</span>
                       <button
                         type="button"
-                        onClick={() => setQty(t.id as TierId, qty + 1)}
-                        className="w-7 h-7 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:border-stone-900 dark:hover:border-stone-400 transition-colors text-base leading-none"
+                        onClick={() => setQty(tier.id as TierId, qty + 1)}
+                        className="w-10 h-10 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:border-stone-900 dark:hover:border-stone-400 transition-colors text-lg leading-none"
                       >
                         +
                       </button>
@@ -167,23 +169,21 @@ export default function CheckoutPage() {
 
             {/* Fulfillment */}
             <div>
-              <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 mb-4 font-sans">Fulfillment Method</p>
+              <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 mb-4 font-sans">{t.checkout.fulfillmentMethod}</p>
               <div className="grid grid-cols-2 gap-3">
                 {(['pickup', 'delivery'] as const).map((opt) => (
                   <button
                     key={opt}
                     type="button"
                     onClick={() => setFulfillment(opt)}
-                    className={`py-4 px-5 border text-xs tracking-widest uppercase font-sans transition-colors text-left ${
+                    className={`py-4 px-4 sm:px-5 border text-xs tracking-widest uppercase font-sans transition-colors text-left ${
                       fulfillment === opt
                         ? 'border-stone-900 dark:border-stone-100 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900'
                         : 'border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-stone-600 dark:hover:border-stone-400'
                     }`}
                   >
-                    <span className="block font-medium">{opt === 'pickup' ? 'Pickup' : 'Delivery'}</span>
-                    <span className="block mt-0.5 text-[10px] opacity-60">
-                      {opt === 'pickup' ? 'Complimentary' : '+$5.00'}
-                    </span>
+                    <span className="block font-medium">{t.checkout[opt].label}</span>
+                    <span className="block mt-0.5 text-[10px] opacity-60">{t.checkout[opt].sub}</span>
                   </button>
                 ))}
               </div>
@@ -191,67 +191,67 @@ export default function CheckoutPage() {
 
             {/* Customer info */}
             <div className="space-y-6">
-              <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 font-sans">Your Information</p>
+              <p className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 font-sans">{t.checkout.yourInfo}</p>
 
-              <Field label="Full Name" required error={errors.customerName}>
+              <Field label={t.checkout.fields.fullName} required error={errors.customerName}>
                 <input
                   type="text"
                   value={form.customerName}
                   onChange={(e) => setForm({ ...form, customerName: e.target.value })}
                   className={inputClass}
-                  placeholder="Your full name"
+                  placeholder={t.checkout.fields.fullNamePlaceholder}
                 />
               </Field>
 
-              <Field label="Phone Number" required error={errors.phone}>
+              <Field label={t.checkout.fields.phone} required error={errors.phone}>
                 <input
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className={inputClass}
-                  placeholder="(555) 000-0000"
+                  placeholder={t.checkout.fields.phonePlaceholder}
                 />
               </Field>
 
-              <Field label="Email Address">
+              <Field label={t.checkout.fields.email}>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className={inputClass}
-                  placeholder="you@example.com (optional)"
+                  placeholder={t.checkout.fields.emailPlaceholder}
                 />
               </Field>
 
               {fulfillment === 'delivery' && (
                 <>
-                  <Field label="Street Address" required error={errors.address}>
+                  <Field label={t.checkout.fields.address} required error={errors.address}>
                     <input
                       type="text"
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       className={inputClass}
-                      placeholder="123 Main Street"
+                      placeholder={t.checkout.fields.addressPlaceholder}
                     />
                   </Field>
-                  <Field label="City" required error={errors.city}>
+                  <Field label={t.checkout.fields.city} required error={errors.city}>
                     <input
                       type="text"
                       value={form.city}
                       onChange={(e) => setForm({ ...form, city: e.target.value })}
                       className={inputClass}
-                      placeholder="City"
+                      placeholder={t.checkout.fields.cityPlaceholder}
                     />
                   </Field>
                 </>
               )}
 
-              <Field label="Order Notes">
+              <Field label={t.checkout.fields.notes}>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   className={`${inputClass} resize-none`}
-                  placeholder="Special requests, referral name, anything else?"
+                  placeholder={t.checkout.fields.notesPlaceholder}
                   rows={2}
                 />
               </Field>
@@ -260,21 +260,21 @@ export default function CheckoutPage() {
             {/* Options */}
             <div className="border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
               <div className="p-5">
-                <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 font-sans mb-4">Options</p>
+                <p className="text-xs tracking-widest uppercase text-stone-400 dark:text-stone-500 font-sans mb-4">{t.checkout.options}</p>
                 <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={weeklyDrop} onChange={(e) => setWeeklyDrop(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100" />
+                  <input type="checkbox" checked={weeklyDrop} onChange={(e) => setWeeklyDrop(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100 w-5 h-5" />
                   <div>
-                    <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">Reserve my spot in the weekly batch</p>
-                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">We bake weekly — check this and we&apos;ll lock you in automatically each week</p>
+                    <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">{t.checkout.weeklyDrop.label}</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">{t.checkout.weeklyDrop.desc}</p>
                   </div>
                 </label>
               </div>
               <div className="p-5">
                 <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={isEventOrder} onChange={(e) => setIsEventOrder(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100" />
+                  <input type="checkbox" checked={isEventOrder} onChange={(e) => setIsEventOrder(e.target.checked)} className="mt-0.5 accent-stone-900 dark:accent-stone-100 w-5 h-5" />
                   <div>
-                    <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">This is for an event or bulk order</p>
-                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">Ordering for a party or large group? We&apos;ll follow up to confirm quantity and timing</p>
+                    <p className="text-stone-800 dark:text-stone-200 text-sm font-sans">{t.checkout.eventOrder.label}</p>
+                    <p className="text-stone-400 dark:text-stone-500 text-xs mt-0.5">{t.checkout.eventOrder.desc}</p>
                   </div>
                 </label>
               </div>
@@ -287,25 +287,27 @@ export default function CheckoutPage() {
                   <div key={line.tier.id} className="flex justify-between text-sm font-sans">
                     <span className="text-stone-500 dark:text-stone-400">
                       {line.qty} × {line.tier.label}
-                      <span className="text-stone-400 dark:text-stone-600 text-xs ml-1.5">(${line.tier.price}/pack)</span>
+                      <span className="text-stone-400 dark:text-stone-600 text-xs ml-1.5">(${line.tier.price}/{t.checkout.perPack})</span>
                     </span>
                     <span className="text-stone-700 dark:text-stone-300 tabular-nums">${line.tier.price * line.qty}.00</span>
                   </div>
                 ))}
 
                 <div className="flex justify-between text-sm text-stone-500 dark:text-stone-400 font-sans pt-1">
-                  <span>Delivery</span>
-                  <span className="tabular-nums">{deliveryFee === 0 ? 'Complimentary' : `$${deliveryFee}.00`}</span>
+                  <span>{t.checkout.summary.delivery}</span>
+                  <span className="tabular-nums">
+                    {deliveryFee === 0 ? t.checkout.summary.complimentary : `$${deliveryFee}.00`}
+                  </span>
                 </div>
 
                 <div className="border-t border-stone-200 dark:border-stone-700 pt-3 flex justify-between items-baseline">
-                  <span className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 font-sans">Total</span>
+                  <span className="text-xs tracking-widest uppercase text-stone-500 dark:text-stone-400 font-sans">{t.checkout.summary.total}</span>
                   <span className="font-serif text-stone-900 dark:text-stone-100 text-2xl tabular-nums">${total}.00</span>
                 </div>
               </div>
               <div className="px-6 pb-4">
                 <p className="text-xs text-stone-400 dark:text-stone-500 font-sans">
-                  Payment collected on {fulfillment} — cash or e-transfer
+                  {fulfillment === 'pickup' ? t.checkout.summary.paymentPickup : t.checkout.summary.paymentDelivery}
                 </p>
               </div>
             </div>
@@ -313,9 +315,9 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading || !hasItems}
-              className="w-full bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 text-white dark:text-stone-900 text-xs tracking-widest uppercase font-sans font-medium py-[18px] transition-colors"
+              className="w-full bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 text-white dark:text-stone-900 text-xs tracking-widest uppercase font-sans font-medium py-5 transition-colors"
             >
-              {loading ? 'Placing Order…' : 'Place Order'}
+              {loading ? t.checkout.submitting : t.checkout.submit}
             </button>
           </form>
         </div>
