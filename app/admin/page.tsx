@@ -109,8 +109,9 @@ export default function AdminPage() {
         sessionStorage.removeItem('admin-password')
         return
       }
+      if (!ordersRes.ok) throw new Error('Failed to load orders.')
       setOrders(await ordersRes.json())
-      setSettings(await settingsRes.json())
+      if (settingsRes.ok) setSettings(await settingsRes.json())
       setSavedPassword(pwd)
       sessionStorage.setItem('admin-password', pwd)
     } catch {
@@ -128,11 +129,12 @@ export default function AdminPage() {
 
   const updateStatus = async (id: string, status: OrderStatus) => {
     try {
-      await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`/api/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-password': savedPassword! },
         body: JSON.stringify({ status }),
       })
+      if (!res.ok) throw new Error('Failed to update status.')
       setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
     } catch {
       alert('Failed to update status.')
