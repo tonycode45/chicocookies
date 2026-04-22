@@ -86,6 +86,7 @@ export default function AdminPage() {
   const [error, setError] = useState('')
   const [showSettings, setShowSettings] = useState(false)
   const [settingsSaving, setSettingsSaving] = useState(false)
+  const [stats, setStats] = useState<{ weekTotal: number; monthTotal: number; activeSubscribers: number } | null>(null)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin-password')
@@ -111,6 +112,8 @@ export default function AdminPage() {
       }
       if (!ordersRes.ok) throw new Error('Failed to load orders.')
       setOrders(await ordersRes.json())
+      const statsRes = await fetch('/api/admin/stats', { headers: { 'x-admin-password': pwd } })
+      if (statsRes.ok) setStats(await statsRes.json())
       if (settingsRes.ok) setSettings(await settingsRes.json())
       setSavedPassword(pwd)
       sessionStorage.setItem('admin-password', pwd)
@@ -247,6 +250,23 @@ export default function AdminPage() {
           </button>
         </div>
       </div>
+
+      {stats && (
+        <div className="bg-stone-900 border-b border-stone-800 px-4 py-3 flex gap-6 text-xs font-sans">
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">This week</p>
+            <p className="text-amber-400 font-medium">${(stats.weekTotal / 100).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">This month</p>
+            <p className="text-amber-400 font-medium">${(stats.monthTotal / 100).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">Active subs</p>
+            <p className="text-amber-400 font-medium">{stats.activeSubscribers}</p>
+          </div>
+        </div>
+      )}
 
       <div className="p-4 max-w-3xl mx-auto">
 
@@ -416,7 +436,7 @@ function OrderCard({
             {order.id} · {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        <p className="font-serif text-stone-900 dark:text-stone-100 text-lg tabular-nums">${order.total}.00</p>
+        <p className="font-serif text-stone-900 dark:text-stone-100 text-lg tabular-nums">${(order.total / 100).toFixed(2)}</p>
       </div>
 
       <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border-b border-stone-100 dark:border-stone-700">
