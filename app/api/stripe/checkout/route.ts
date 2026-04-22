@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'At least one item is required' }, { status: 400 })
     }
+    if (fulfillment === 'delivery' && (!address?.trim() || !city?.trim())) {
+      return NextResponse.json({ error: 'Address and city required for delivery' }, { status: 400 })
+    }
 
     const resolved = []
     for (const item of items) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getOrderById, updateOrderStatus, OrderStatus } from '@/lib/db/orders'
 
 function isAuthorized(req: NextRequest) {
-  return req.headers.get('x-admin-password') === (process.env.ADMIN_PASSWORD || 'cookies2024')
+  return !!process.env.ADMIN_PASSWORD && req.headers.get('x-admin-password') === process.env.ADMIN_PASSWORD
 }
 
 const VALID_STATUSES = ['new','confirmed','baking','ready','out_for_delivery','completed','cancelled']

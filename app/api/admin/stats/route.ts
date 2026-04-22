@@ -3,7 +3,7 @@ import sql from '@/lib/db'
 import { getActiveSubscriptionCount } from '@/lib/db/subscriptions'
 
 function isAuthorized(req: NextRequest) {
-  return req.headers.get('x-admin-password') === (process.env.ADMIN_PASSWORD || 'cookies2024')
+  return !!process.env.ADMIN_PASSWORD && req.headers.get('x-admin-password') === process.env.ADMIN_PASSWORD
 }
 
 export async function GET(req: NextRequest) {
