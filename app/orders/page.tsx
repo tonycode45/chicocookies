@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Order } from '@/lib/db/orders'
+import { Order } from '@/lib/orders'
 
 const STATUS_LABELS: Record<string, string> = {
   new: 'Received',
@@ -14,6 +14,10 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
 export default function OrdersPage() {
   const [email, setEmail] = useState('')
   const [orders, setOrders] = useState<Order[] | null>(null)
@@ -22,15 +26,23 @@ export default function OrdersPage() {
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) return
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setError('Please enter your email address.')
+      return
+    }
+    if (!isValidEmail(trimmed)) {
+      setError('Please enter a valid email address.')
+      return
+    }
     setError('')
+    setOrders(null)
     setLoading(true)
     try {
-      const res = await fetch(`/api/orders/by-email?email=${encodeURIComponent(email.trim())}`)
+      const res = await fetch(`/api/orders/by-email?email=${encodeURIComponent(trimmed)}`)
       if (!res.ok) throw new Error('Failed to fetch orders')
-      const data = await res.json()
+      const data: Order[] = await res.json()
       setOrders(data)
-      if (data.length === 0) setError('No orders found for that email address.')
     } catch {
       setError('Could not look up orders. Please try again.')
     } finally {
@@ -48,29 +60,55 @@ export default function OrdersPage() {
           <div className="gold-divider mt-4" />
         </div>
 
-        <form onSubmit={handleLookup} className="space-y-5 mb-10">
+        <form onSubmit={handleLookup} className="space-y-5 mb-10" noValidate>
           <div>
-            <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">Email address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            <label htmlFor="order-email" className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">
+              Email address
+            </label>
+            <input
+              id="order-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors" />
+              autoComplete="email"
+              className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors"
+            />
           </div>
-          <button type="submit" disabled={loading}
-            className="w-full border border-gold text-gold hover:bg-gold hover:text-bg disabled:opacity-40 text-xs tracking-widest uppercase font-sans font-medium py-4 transition-colors">
+          <button
+            type="submit"
+            disabled={loading}
+            aria-label={loading ? 'Looking up orders' : 'Look up orders'}
+            className="w-full border border-gold text-gold hover:bg-gold hover:text-bg disabled:opacity-40 text-xs tracking-widest uppercase font-sans font-medium py-4 transition-colors"
+          >
             {loading ? 'Looking up…' : 'Look up orders →'}
           </button>
         </form>
 
-        {error && <p className="text-red-400 text-sm font-sans mb-6">{error}</p>}
+        <div aria-live="polite" aria-atomic="true">
+          {error && <p className="text-red-400 text-sm font-sans mb-6">{error}</p>}
+        </div>
 
-        {orders && orders.length > 0 && (
-          <div className="space-y-4">
+        {loading && (
+          <p className="text-text-muted text-sm font-sans text-center py-8" aria-live="polite">
+            Looking up your orders…
+          </p>
+        )}
+
+        {!loading && orders !== null && orders.length === 0 && (
+          <p className="text-text-muted text-sm font-sans text-center py-8">
+            No orders found for that email address.
+          </p>
+        )}
+
+        {orders !== null && orders.length > 0 && (
+          <div className="space-y-4" role="list" aria-label="Your orders">
             {orders.map((order) => (
-              <div key={order.id} className="border border-white/10 p-5 space-y-3">
+              <div key={order.id} className="border border-white/10 p-5 space-y-3" role="listitem">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-mono text-text-muted text-xs">{order.id}</p>
-                    <p className="text-text-dim text-xs font-sans mt-0.5">
+                    <p className="text-text-muted text-xs font-sans mt-0.5">
                       {new Date(order.createdAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                   </div>

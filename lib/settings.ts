@@ -29,7 +29,15 @@ export function readSettings(): ShopSettings {
 }
 
 export function writeSettings(settings: ShopSettings) {
+  const sanitised: ShopSettings = {
+    ...settings,
+    availableSpots: Math.max(0, Math.floor(settings.availableSpots)),
+    batchInfo: settings.batchInfo?.trim() || DEFAULT_SETTINGS.batchInfo,
+    cutoffTime: settings.cutoffTime?.trim() || DEFAULT_SETTINGS.cutoffTime,
+    pickupInstructions:
+      settings.pickupInstructions?.trim() || DEFAULT_SETTINGS.pickupInstructions,
+  }
   const dir = path.dirname(SETTINGS_FILE)
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2))
+  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(sanitised, null, 2))
 }

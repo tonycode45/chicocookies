@@ -9,34 +9,40 @@ interface ThemeContextValue {
   toggleTheme: () => void
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'light',
-  toggleTheme: () => {},
-})
+const VALID_THEMES: Theme[] = ['light', 'dark']
+const STORAGE_KEY = 'chicoine-theme'
+
+// Sentinel used before hydration so we never render with a wrong default.
+const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
+  // Start as undefined so we can detect "not yet hydrated" and avoid a flash.
+  const [theme, setTheme] = useState<Theme | undefined>(undefined)
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme') as Theme | null
-    if (saved) {
-      setTheme(saved)
-      document.documentElement.classList.toggle('dark', saved === 'dark')
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved && (VALID_THEMES as string[]).includes(saved)) {
+      const validSaved = saved as Theme
+      setTheme(validSaved)
+      document.documentElement.classList.toggle('dark', validSaved === 'dark')
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (prefersDark) {
-        setTheme('dark')
-        document.documentElement.classList.add('dark')
-      }
+      const initial: Theme = prefersDark ? 'dark' : 'light'
+      setTheme(initial)
+      document.documentElement.classList.toggle('dark', initial === 'dark')
     }
   }, [])
 
   const toggleTheme = () => {
-    const next = theme === 'light' ? 'dark' : 'light'
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
     setTheme(next)
-    localStorage.setItem('theme', next)
+    localStorage.setItem(STORAGE_KEY, next)
     document.documentElement.classList.toggle('dark', next === 'dark')
   }
+
+  // Suppress rendering until the real theme is known to avoid a flash of the
+  // wrong theme on first paint.
+  if (theme === undefined) return null
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -45,6 +51,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function useTheme() {
-  return useContext(ThemeContext)
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext)
+  if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>')
+  return ctx
 }

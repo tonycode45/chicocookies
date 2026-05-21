@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { getSettings } from '@/lib/db/settings'
+import { TIERS } from '@/lib/tiers'
+import IngredientsSection from '@/components/IngredientsSection'
 
 const COPY = {
   byline: 'Handmade in small batches',
@@ -8,12 +10,6 @@ const COPY = {
   description: 'Peanut butter oatmeal chocolate chip cookies, baked fresh to order by a student who takes this seriously.',
 }
 
-const TIERS_DISPLAY = [
-  { id: 'small',  label: '2 Cookies',  price: 5  },
-  { id: 'medium', label: '6 Cookies',  price: 14, popular: true },
-  { id: 'large',  label: '12 Cookies', price: 22 },
-]
-
 export default async function HomePage() {
   const settings = await getSettings()
 
@@ -21,7 +17,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-bg flex flex-col md:flex-row">
 
       {/* ── Sidebar (desktop only) ── */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-sidebar border-r border-white/5 sticky top-0 h-screen">
+      <aside aria-label="Site navigation" className="hidden md:flex flex-col w-56 shrink-0 bg-sidebar border-r border-white/5 sticky top-0 h-screen">
         <div className="p-8 flex-1">
           <p className="font-serif text-text-primary text-lg tracking-wide mb-1">Chicoine</p>
           <p className="font-serif text-gold text-xs tracking-widest uppercase mb-8">Cookies</p>
@@ -50,7 +46,7 @@ export default async function HomePage() {
       </aside>
 
       {/* ── Main area ── */}
-      <main className="flex-1 flex flex-col lg:flex-row min-h-screen">
+      <main aria-label="Main content" className="flex-1 flex flex-col lg:flex-row min-h-screen">
 
         {/* Content */}
         <div className="flex-1 px-6 pt-12 pb-24 md:px-12 md:pt-16 max-w-2xl">
@@ -58,7 +54,10 @@ export default async function HomePage() {
           {/* Mobile header */}
           <div className="flex items-center justify-between mb-10 md:hidden">
             <p className="font-serif text-text-primary">Chicoine Cookies</p>
-            <span className={`text-xs font-sans ${settings.acceptingOrders ? 'text-green-400' : 'text-red-400'}`}>
+            <span
+              aria-label={settings.acceptingOrders ? 'Currently open' : 'Currently closed'}
+              className={`text-xs font-sans ${settings.acceptingOrders ? 'text-green-400' : 'text-red-400'}`}
+            >
               {settings.acceptingOrders ? '● Open' : '● Closed'}
             </span>
           </div>
@@ -86,10 +85,13 @@ export default async function HomePage() {
           {/* Story */}
           <div className="border-l-2 border-gold/30 pl-6 mb-14">
             <blockquote className="font-serif text-text-primary text-lg italic leading-relaxed mb-3">
-              &ldquo;I started making these for my family. Grandma said they were the best she&apos;d ever had. That felt like enough to start selling them.&rdquo;
+              &ldquo;My mom started baking these cookies one day. I eventually started to like them, and she showed me how to make them. I perfected the recipe and made them even better &mdash; and now they&apos;re pretty famous at my school.&rdquo;
             </blockquote>
-            <p className="text-text-dim text-xs font-sans tracking-widest uppercase">Antonio · Grade 10</p>
+            <p className="text-text-dim text-xs font-sans tracking-widest uppercase">Antonio · Founder</p>
           </div>
+
+          {/* Ingredients */}
+          <IngredientsSection />
 
           {/* Testimonials */}
           <div className="space-y-3 mb-14">
@@ -126,7 +128,7 @@ export default async function HomePage() {
         </div>
 
         {/* ── Sticky order panel ── */}
-        <aside className="lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5 p-6">
+        <aside aria-label="Order panel" className="lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5 p-6">
 
           {/* Subscription card */}
           <div className="border border-gold/30 p-5 mb-6">
@@ -160,9 +162,11 @@ export default async function HomePage() {
           )}
 
           <div className="space-y-2 mb-6">
-            {TIERS_DISPLAY.map((tier) => (
+            {TIERS.map((tier) => (
               <Link key={tier.id}
                 href={settings.acceptingOrders ? `/checkout?tier=${tier.id}` : '#'}
+                aria-disabled={!settings.acceptingOrders}
+                tabIndex={settings.acceptingOrders ? undefined : -1}
                 className={`flex items-center justify-between border px-4 py-3 transition-colors ${
                   tier.popular ? 'border-gold/30 hover:border-gold' : 'border-white/10 hover:border-white/20'
                 } ${!settings.acceptingOrders ? 'pointer-events-none opacity-40' : ''}`}>
@@ -180,7 +184,7 @@ export default async function HomePage() {
       </main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-white/5 flex z-10">
+      <nav aria-label="Mobile navigation" className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-white/5 flex z-10">
         {[{ href: '/', label: 'Shop' }, { href: '/orders', label: 'Orders' }, { href: '/subscribe', label: 'Subscribe' }].map(({ href, label }) => (
           <Link key={href} href={href} className="flex-1 py-4 text-center text-xs font-sans text-text-muted hover:text-gold transition-colors tracking-widest uppercase">
             {label}

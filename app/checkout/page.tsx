@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { TIERS, TierId } from '@/lib/tiers'
+import { useLanguage } from '@/context/LanguageContext'
+import { translations } from '@/lib/translations'
 
 const DELIVERY_FEE = 5
 
 export default function CheckoutPage() {
   const { items, cartLines, hasItems, subtotal, setQty, clearCart } = useCart()
+  const { lang } = useLanguage()
+  const t = translations[lang]
   const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery'>('pickup')
   const [form, setForm] = useState({ customerName: '', phone: '', email: '', address: '', city: '', notes: '' })
-  const [referredBy, setReferredBy] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -19,8 +22,6 @@ export default function CheckoutPage() {
     const params = new URLSearchParams(window.location.search)
     const tier = params.get('tier')
     if (tier && ['small','medium','large'].includes(tier)) setQty(tier as TierId, 1)
-    const ref = params.get('ref')
-    if (ref) setReferredBy(ref)
   }, [])
 
   const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
@@ -28,12 +29,11 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const errs: Record<string, string> = {}
-    if (!form.customerName.trim()) errs.customerName = 'Name is required'
-    if (!form.phone.trim()) errs.phone = 'Phone is required'
-    if (!form.email.trim()) errs.email = 'Email is required (for receipt)'
+    if (!form.customerName.trim()) errs.customerName = t.checkout.errors.nameRequired
+    if (!form.phone.trim()) errs.phone = t.checkout.errors.phoneRequired
     if (fulfillment === 'delivery') {
-      if (!form.address.trim()) errs.address = 'Address is required'
-      if (!form.city.trim()) errs.city = 'City is required'
+      if (!form.address.trim()) errs.address = t.checkout.errors.addressRequired
+      if (!form.city.trim()) errs.city = t.checkout.errors.cityRequired
     }
     return errs
   }
@@ -52,7 +52,6 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           ...form, fulfillment,
           items: cartLines.map((l) => ({ tierId: l.tier.id, qty: l.qty })),
-          referredBy: referredBy || undefined,
         }),
       })
       const data = await res.json()
@@ -72,13 +71,13 @@ export default function CheckoutPage() {
         <div className="max-w-xl mx-auto">
           <div className="mb-8">
             <Link href="/" className="text-text-muted text-xs font-sans tracking-widest uppercase hover:text-gold transition-colors">← Back</Link>
-            <h1 className="font-serif text-4xl text-text-primary mt-6">Your Order</h1>
+            <h1 className="font-serif text-4xl text-text-primary mt-6">{t.checkout.badge}</h1>
             <div className="gold-divider mt-4" />
           </div>
 
           {/* Item selector */}
           <div className="mb-8">
-            <p className="text-xs tracking-widest uppercase text-text-muted font-sans mb-3">Select cookies</p>
+            <p className="text-xs tracking-widest uppercase text-text-muted font-sans mb-3">{t.checkout.selectItems}</p>
             <div className="space-y-2">
               {TIERS.map((tier) => {
                 const qty = items[tier.id as TierId] ?? 0
@@ -86,7 +85,12 @@ export default function CheckoutPage() {
                   <div key={tier.id} className={`flex items-center justify-between border px-4 py-4 transition-colors ${qty > 0 ? 'border-gold' : 'border-white/10'}`}>
                     <div>
                       <p className="font-serif text-text-primary">{tier.label}</p>
-                      <p className="text-text-muted text-xs font-sans mt-0.5">${tier.price}.00 per pack</p>
+                      <p className="text-text-muted text-xs font-sans mt-0.5">${tier.price}.00 {t.checkout.perPack}</p>
+                      {tier.id in t.home.order.savings && (
+                        <p className="text-gold text-[10px] font-sans tracking-widest uppercase mt-0.5">
+                          {t.home.order.savings[tier.id as keyof typeof t.home.order.savings]}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       <button type="button" onClick={() => setQty(tier.id as TierId, qty - 1)}
@@ -104,15 +108,15 @@ export default function CheckoutPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Fulfillment */}
             <div>
-              <p className="text-xs tracking-widest uppercase text-text-muted mb-3 font-sans">Delivery method</p>
+              <p className="text-xs tracking-widest uppercase text-text-muted mb-3 font-sans">{t.checkout.fulfillmentMethod}</p>
               <div className="grid grid-cols-2 gap-3">
                 {(['pickup','delivery'] as const).map((opt) => (
                   <button key={opt} type="button" onClick={() => setFulfillment(opt)}
                     className={`py-4 px-5 border text-xs tracking-widest uppercase font-sans transition-colors text-left ${
                       fulfillment === opt ? 'border-gold text-gold' : 'border-white/10 text-text-muted hover:border-white/20'
                     }`}>
-                    <span className="block font-medium capitalize">{opt}</span>
-                    <span className="block mt-0.5 text-[10px] opacity-60">{opt === 'pickup' ? 'Free · 4–7pm' : '+$5.00'}</span>
+                    <span className="block font-medium">{t.checkout[opt].label}</span>
+                    <span className="block mt-0.5 text-[10px] opacity-60">{t.checkout[opt].sub}</span>
                   </button>
                 ))}
               </div>
@@ -120,11 +124,11 @@ export default function CheckoutPage() {
 
             {/* Customer info */}
             <div className="space-y-5">
-              <p className="text-xs tracking-widest uppercase text-text-muted font-sans">Your info</p>
+              <p className="text-xs tracking-widest uppercase text-text-muted font-sans">{t.checkout.yourInfo}</p>
               {[
-                { key: 'customerName', label: 'Full name', type: 'text' },
-                { key: 'phone', label: 'Phone', type: 'tel' },
-                { key: 'email', label: 'Email (for receipt)', type: 'email' },
+                { key: 'customerName', label: t.checkout.fields.fullName, type: 'text' },
+                { key: 'phone', label: t.checkout.fields.phone, type: 'tel' },
+                { key: 'email', label: t.checkout.fields.email, type: 'email' },
               ].map(({ key, label, type }) => (
                 <div key={key}>
                   <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{label} <span className="text-gold">*</span></label>
@@ -136,7 +140,7 @@ export default function CheckoutPage() {
               ))}
               {fulfillment === 'delivery' && (
                 <>
-                  {[{ key: 'address', label: 'Street address' }, { key: 'city', label: 'City' }].map(({ key, label }) => (
+                  {[{ key: 'address', label: t.checkout.fields.address }, { key: 'city', label: t.checkout.fields.city }].map(({ key, label }) => (
                     <div key={key}>
                       <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{label} <span className="text-gold">*</span></label>
                       <input type="text" value={form[key as keyof typeof form]}
@@ -148,7 +152,7 @@ export default function CheckoutPage() {
                 </>
               )}
               <div>
-                <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">Notes</label>
+                <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{t.checkout.fields.notes}</label>
                 <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors resize-none" rows={2} />
               </div>
@@ -163,18 +167,18 @@ export default function CheckoutPage() {
                 </div>
               ))}
               <div className="flex justify-between text-sm text-text-muted font-sans">
-                <span>Delivery</span>
-                <span>{deliveryFee === 0 ? 'Free' : `$${deliveryFee}.00`}</span>
+                <span>{t.checkout.summary.delivery}</span>
+                <span>{deliveryFee === 0 ? t.checkout.summary.complimentary : `$${deliveryFee}.00`}</span>
               </div>
               <div className="border-t border-white/10 pt-3 flex justify-between items-baseline">
-                <span className="text-xs tracking-widest uppercase text-text-muted font-sans">Total</span>
+                <span className="text-xs tracking-widest uppercase text-text-muted font-sans">{t.checkout.summary.total}</span>
                 <span className="font-serif text-text-primary text-2xl">${total}.00</span>
               </div>
             </div>
 
             <button type="submit" disabled={loading || !hasItems}
               className="w-full bg-gold hover:bg-gold-warm disabled:opacity-40 text-bg text-xs tracking-widest uppercase font-sans font-medium py-5 transition-colors">
-              {loading ? 'Redirecting to payment…' : 'Pay with Card →'}
+              {loading ? t.checkout.submitting : t.checkout.submit}
             </button>
           </form>
         </div>

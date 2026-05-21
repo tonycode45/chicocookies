@@ -1,9 +1,15 @@
-import { getOrderById } from '@/lib/db/orders'
+import { getOrderById } from '@/lib/orders'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
-export default async function OrderConfirmationPage({ params }: { params: { id: string } }) {
-  const order = await getOrderById(params.id)
+export const metadata: Metadata = {
+  title: 'Order Confirmed — Chicoine Cookies',
+}
+
+export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const order = await getOrderById(id)
   if (!order) notFound()
 
   const totalDisplay = `$${(order.total / 100).toFixed(2)}`
@@ -40,7 +46,7 @@ export default async function OrderConfirmationPage({ params }: { params: { id: 
             : "We\u2019ll text you before delivery."}
         </p>
 
-        <Link href="/" className="inline-block border border-white/10 text-text-muted hover:border-gold hover:text-gold text-xs tracking-widest uppercase font-sans px-8 py-4 transition-colors">
+        <Link href="/" aria-label="Back to shop — return to the Chicoine Cookies home page" className="inline-block border border-white/10 text-text-muted hover:border-gold hover:text-gold text-xs tracking-widest uppercase font-sans px-8 py-4 transition-colors">
           Back to shop
         </Link>
       </div>

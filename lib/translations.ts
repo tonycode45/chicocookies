@@ -40,6 +40,7 @@ const en = {
       popular: 'Most popular',
       perCookie: 'per cookie',
       cta: 'Order Now',
+      savings: { medium: 'Better value', large: 'Best value' },
     },
     howItWorks: {
       badge: 'The Process',
@@ -55,19 +56,21 @@ const en = {
       headline: 'What goes inside',
       description: "Seven ingredients. Nothing artificial. Nothing you can't pronounce.",
       footer: 'No preservatives\u00a0·\u00a0No artificial flavors\u00a0·\u00a0Baked same day',
+      items: [
+        'All-natural peanut butter',
+        'Rolled oats',
+        'Chocolate chips',
+        'Butter',
+        'Brown sugar',
+        'Egg',
+        'All-purpose flour',
+      ],
     },
     story: {
       badge: 'Our Story',
       quote:
-        '\u201cThese cookies started in our kitchen. My son wanted to learn what it means to build something from scratch \u2014 to make something people love, price it fairly, and stand behind every batch. Every order that comes in is proof that effort compounds.\u201d',
+        '\u201cMy mom started baking these cookies one day. I eventually started to like them, and she showed me how to make them. I perfected the recipe and made them even better \u2014 and now they\u2019re pretty famous at my school.\u201d',
       caption: 'We bake every batch ourselves. We pack every box by hand.\nAnd we\u2019re proud of every single one.',
-    },
-    referral: {
-      badge: 'Share the Love',
-      headline: 'Give $5, Get $5',
-      description:
-        'Refer a friend. When they place their first order, mention your name in the notes — you both get $5 off your next order. No codes. No apps. Just tell us.',
-      cta: 'Order & Start Referring',
     },
     fulfillment: {
       badge: 'Fulfillment',
@@ -110,7 +113,7 @@ const en = {
       emailPlaceholder: 'you@example.com (optional)',
       addressPlaceholder: '123 Main Street',
       cityPlaceholder: 'City',
-      notesPlaceholder: 'Special requests, referral name, anything else?',
+      notesPlaceholder: 'Special requests, anything else?',
     },
     errors: {
       nameRequired: 'Name is required',
@@ -150,16 +153,6 @@ const en = {
         'Collect at pickup or receive at your door at the agreed time.',
         'Payment collected on arrival — cash or e-transfer.',
       ],
-    },
-    referral: {
-      badge: 'Give $5, Get $5',
-      headline: "Know someone who'd love these?",
-      description: 'Share your link. When a friend mentions your order at checkout, you both get',
-      bold: '$5 off',
-      description2: 'your next order. We honor it manually — no apps, no codes.',
-      copy: 'Copy Referral Link',
-      copied: 'Link Copied!',
-      share: 'Share',
     },
     backHome: 'Back to Home',
   },
@@ -205,6 +198,7 @@ const fr: typeof en = {
       popular: 'Le plus populaire',
       perCookie: 'par biscuit',
       cta: 'Commander',
+      savings: { medium: 'Meilleur rapport', large: 'Meilleure valeur' },
     },
     howItWorks: {
       badge: 'Le processus',
@@ -220,19 +214,21 @@ const fr: typeof en = {
       headline: "Ce qu\u2019il y a \u00e0 l\u2019int\u00e9rieur",
       description: "Sept ingr\u00e9dients. Rien d\u2019artificiel. Rien que vous ne pouvez pas prononcer.",
       footer: 'Sans agents de conservation\u00a0·\u00a0Sans ar\u00f4mes artificiels\u00a0·\u00a0Cuit le jour m\u00eame',
+      items: [
+        'Beurre d\u2019arachide naturel',
+        'Flocons d\u2019avoine',
+        'P\u00e9pites de chocolat',
+        'Beurre',
+        'Cassonade',
+        '\u0152uf',
+        'Farine tout usage',
+      ],
     },
     story: {
       badge: 'Notre histoire',
       quote:
-        "\u00ab Ces biscuits ont commenc\u00e9 dans notre cuisine. Mon fils voulait apprendre ce que signifie construire quelque chose \u00e0 partir de z\u00e9ro \u2014 cr\u00e9er quelque chose que les gens aiment, le prix \u00e9quitable, et d\u00e9fendre chaque fourn\u00e9e. Chaque commande re\u00e7ue prouve que les efforts s\u2019accumulent. \u00bb",
+        '\u00ab Un jour, ma m\u00e8re a commenc\u00e9 \u00e0 faire ces biscuits. J\u2019ai fini par les aimer, et elle m\u2019a montr\u00e9 comment les pr\u00e9parer. J\u2019ai perfectionn\u00e9 la recette et les ai rendus encore meilleurs \u2014 et maintenant ils sont plutôt c\u00e9l\u00e8bres \u00e0 mon \u00e9cole. \u00bb',
       caption: "Nous cuisons chaque fourn\u00e9e nous-m\u00eames. Nous emballons chaque bo\u00eete \u00e0 la main.\nEt nous sommes fiers de chacune d\u2019elles.",
-    },
-    referral: {
-      badge: "Partagez l\u2019amour",
-      headline: 'Donnez 5\u00a0$, recevez 5\u00a0$',
-      description:
-        "R\u00e9f\u00e9rez un ami. Quand il passe sa premi\u00e8re commande, mentionnez votre nom dans les notes \u2014 vous recevez tous les deux 5\u00a0$ de rabais sur votre prochaine commande. Pas de code. Pas d\u2019appli. Dites-le nous.",
-      cta: 'Commander et commencer \u00e0 r\u00e9f\u00e9rer',
     },
     fulfillment: {
       badge: 'Livraison',
@@ -275,7 +271,7 @@ const fr: typeof en = {
       emailPlaceholder: 'vous@exemple.com (facultatif)',
       addressPlaceholder: '123 Rue Principale',
       cityPlaceholder: 'Ville',
-      notesPlaceholder: 'Demandes sp\u00e9ciales, nom du r\u00e9f\u00e9rent, autre chose\u00a0?',
+      notesPlaceholder: 'Demandes sp\u00e9ciales, autre chose\u00a0?',
     },
     errors: {
       nameRequired: 'Le nom est requis',
@@ -315,16 +311,6 @@ const fr: typeof en = {
         "Cueillez \u00e0 l\u2019adresse ou recevez \u00e0 votre porte \u00e0 l\u2019heure convenue.",
         'Paiement \u00e0 la r\u00e9ception \u2014 comptant ou virement.',
       ],
-    },
-    referral: {
-      badge: 'Donnez 5\u00a0$, recevez 5\u00a0$',
-      headline: "Vous connaissez quelqu\u2019un qui adorerait \u00e7a\u00a0?",
-      description: 'Partagez votre lien. Quand un ami mentionne votre commande lors du paiement, vous recevez tous les deux',
-      bold: '5\u00a0$ de rabais',
-      description2: 'sur votre prochaine commande. On le fait manuellement \u2014 pas d\u2019appli, pas de code.',
-      copy: 'Copier le lien de r\u00e9f\u00e9rence',
-      copied: 'Lien copi\u00e9\u00a0!',
-      share: 'Partager',
     },
     backHome: "Retour \u00e0 l\u2019accueil",
   },
@@ -370,6 +356,7 @@ const es: typeof en = {
       popular: 'El m\u00e1s popular',
       perCookie: 'por galleta',
       cta: 'Pedir ahora',
+      savings: { medium: 'Mejor relaci\u00f3n', large: 'Mejor valor' },
     },
     howItWorks: {
       badge: 'El proceso',
@@ -385,19 +372,21 @@ const es: typeof en = {
       headline: 'Qu\u00e9 hay adentro',
       description: 'Siete ingredientes. Nada artificial. Nada que no puedas pronunciar.',
       footer: 'Sin conservantes\u00a0·\u00a0Sin sabores artificiales\u00a0·\u00a0Horneado el mismo d\u00eda',
+      items: [
+        'Mantequilla de man\u00ed natural',
+        'Avena en copos',
+        'Chispas de chocolate',
+        'Mantequilla',
+        'Az\u00facar morena',
+        'Huevo',
+        'Harina todo uso',
+      ],
     },
     story: {
       badge: 'Nuestra historia',
       quote:
-        '\u201cEstas galletas empezaron en nuestra cocina. Mi hijo quer\u00eda aprender lo que significa construir algo desde cero \u2014 crear algo que la gente ame, ponerle un precio justo y respaldar cada lote. Cada pedido que llega es prueba de que el esfuerzo se acumula.\u201d',
+        '\u201cUn d\u00eda, mi mam\u00e1 empez\u00f3 a hornear estas galletas. Con el tiempo empec\u00e9 a gustarme y ella me ense\u00f1\u00f3 c\u00f3mo hacerlas. Perfeccion\u00e9 la receta y las mejor\u00e9 a\u00fan m\u00e1s \u2014 y ahora son bastante famosas en mi escuela.\u201d',
       caption: 'Horneamos cada lote nosotros mismos. Empacamos cada caja a mano.\nY estamos orgullosos de cada una.',
-    },
-    referral: {
-      badge: 'Comparte el amor',
-      headline: 'Da $5, recibe $5',
-      description:
-        'Refiere a un amigo. Cuando haga su primer pedido, menciona tu nombre en las notas \u2014 los dos reciben $5 de descuento en su pr\u00f3ximo pedido. Sin c\u00f3digos. Sin apps. Solo d\u00ednoslo.',
-      cta: 'Pedir y empezar a referir',
     },
     fulfillment: {
       badge: 'Entrega',
@@ -440,7 +429,7 @@ const es: typeof en = {
       emailPlaceholder: 't\u00fa@ejemplo.com (opcional)',
       addressPlaceholder: '123 Calle Principal',
       cityPlaceholder: 'Ciudad',
-      notesPlaceholder: '\u00bfSolicitudes especiales, nombre de referido, algo m\u00e1s?',
+      notesPlaceholder: '\u00bfSolicitudes especiales, algo m\u00e1s?',
     },
     errors: {
       nameRequired: 'El nombre es obligatorio',
@@ -480,16 +469,6 @@ const es: typeof en = {
         'Recoge en el punto o rec\u00edbelas en tu puerta a la hora acordada.',
         'Pago al recibirlas \u2014 efectivo o transferencia.',
       ],
-    },
-    referral: {
-      badge: 'Da $5, recibe $5',
-      headline: '\u00bfConoces a alguien que las amar\u00eda?',
-      description: 'Comparte tu enlace. Cuando un amigo mencione tu pedido al pagar, los dos reciben',
-      bold: '$5 de descuento',
-      description2: 'en su pr\u00f3ximo pedido. Lo hacemos manualmente \u2014 sin apps, sin c\u00f3digos.',
-      copy: 'Copiar enlace de referido',
-      copied: '\u00a1Enlace copiado!',
-      share: 'Compartir',
     },
     backHome: 'Volver al inicio',
   },
