@@ -1,33 +1,37 @@
-'use client'
+'use client';
 
-import { useLanguage } from '@/context/LanguageContext'
-import { translations } from '@/lib/translations'
+import { useLanguage } from '@/context/LanguageContext';
 
-export default function IngredientsSection() {
-  const { lang } = useLanguage()
-  const t = translations[lang].home.ingredients
+export function IngredientsSection() {
+  const { t } = useLanguage();
 
   return (
-    <div className="mb-14">
-      <p className="text-xs tracking-widest uppercase text-gold font-sans mb-2">{t.badge}</p>
-      <h2 className="font-serif text-text-primary text-2xl mb-2">{t.headline}</h2>
-      <p className="text-text-muted text-sm font-sans mb-6">{t.description}</p>
+    <section className="bg-bg-alt py-24 px-6 md:px-12 text-center">
+      <p className="text-gold text-[11px] tracking-[6px] uppercase mb-5">
+        {t.home.ingredients.badge}
+      </p>
+      <h2 className="font-serif text-3xl md:text-[40px] font-normal leading-[1.3] mb-5 text-text-primary">
+        {t.home.ingredients.headline}
+      </h2>
+      <div className="gold-divider mb-8" />
+      <p className="text-text-muted text-[15px] leading-[1.8] max-w-[560px] mx-auto mb-8">
+        {t.home.ingredients.description}
+      </p>
 
-      <div className="border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6">
-        <div className="grid grid-cols-1 gap-2">
-          {t.items.map((item, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <span className="text-gold text-[10px] font-sans tabular-nums w-4 shrink-0">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="font-serif text-text-primary text-sm">{item}</span>
-            </div>
-          ))}
-        </div>
-        <p className="text-text-dim text-[10px] font-sans tracking-widest uppercase mt-6 pt-4 border-t border-white/5">
-          {t.footer}
-        </p>
+      <div className="flex flex-wrap justify-center gap-2.5 max-w-[640px] mx-auto">
+        {t.home.ingredients.items.map((name) => (
+          <span
+            key={name}
+            className="border border-text-primary/[0.1] px-5 py-2.5 text-[13px] text-text-primary tracking-wide transition-colors hover:border-gold/30"
+          >
+            {name}
+          </span>
+        ))}
       </div>
-    </div>
-  )
+
+      <p className="text-text-dim text-xs tracking-[4px] uppercase mt-9">
+        {t.home.ingredients.footer}
+      </p>
+    </section>
+  );
 }
