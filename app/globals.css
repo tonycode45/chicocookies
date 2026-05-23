@@ -11,6 +11,17 @@ body {
 
 .gold-divider {
   width: 40px;
-  height: 1px;
+  height: 2px;
   background-color: #dc8c28;
+  margin: 0 auto;
 }
+
+.corner-tl, .corner-tr, .corner-bl, .corner-br {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+.corner-tl { top: -1px; left: -1px; border-top: 1px solid #dc8c28; border-left: 1px solid #dc8c28; }
+.corner-tr { top: -1px; right: -1px; border-top: 1px solid #dc8c28; border-right: 1px solid #dc8c28; }
+.corner-bl { bottom: -1px; left: -1px; border-bottom: 1px solid #dc8c28; border-left: 1px solid #dc8c28; }
+.corner-br { bottom: -1px; right: -1px; border-bottom: 1px solid #dc8c28; border-right: 1px solid #dc8c28; }
