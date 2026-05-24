@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import getStripe from '@/lib/stripe'
 import { createOrder } from '@/lib/db/orders'
 import { getTierById, TierId } from '@/lib/tiers'
+import { sendReceiptEmail } from '@/lib/email/receipt'
 
 const DELIVERY_FEE = 500 // cents
 
@@ -38,17 +39,21 @@ export async function POST(req: NextRequest) {
     const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
     const orderId = `CC-${Date.now()}`
 
+    const total = subtotal + deliveryFee
+
     await createOrder({
       id: orderId,
       customerName: customerName.trim(), phone: phone.trim(), email: email.trim(),
       fulfillment, address: address?.trim() || undefined, city: city?.trim() || undefined,
       items: dbItems,
       cookiesTotal: dbItems.reduce((s, i) => s + i.cookies, 0),
-      subtotal, deliveryFee, total: subtotal + deliveryFee,
+      subtotal, deliveryFee, total,
       notes: notes?.trim() || undefined,
       weeklyDrop: false, isEventOrder: Boolean(isEventOrder),
       referredBy: referredBy?.trim() || undefined,
     })
+
+    await sendReceiptEmail({ to: email.trim(), orderId, total })
 
     const origin = req.headers.get('origin') || 'http://localhost:3000'
 
