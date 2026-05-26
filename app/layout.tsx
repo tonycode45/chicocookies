@@ -1,40 +1,41 @@
-import type { Metadata } from 'next'
-import { Playfair_Display, Inter } from 'next/font/google'
-import './globals.css'
-import { CartProvider } from '@/context/CartContext'
-import { ThemeProvider } from '@/context/ThemeContext'
-import { LanguageProvider } from '@/context/LanguageContext'
+import type { Metadata, Viewport } from 'next';
+import { Inter, Playfair_Display } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { CartProvider } from '@/context/CartContext';
+import { Navbar } from '@/components/Navbar';
 
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
   display: 'swap',
-})
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
+});
 
 export const metadata: Metadata = {
   title: 'Chicoine Cookies',
   description: 'Handcrafted peanut butter oatmeal chocolate chip cookies, baked fresh to order.',
-}
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{__html: `try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}`}} />
-      </head>
-      <body className={`${playfair.variable} ${inter.variable} font-sans bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased`}>
+    <html lang="en" className={`dark ${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+      <body className="font-sans bg-bg text-text-primary antialiased">
         <ThemeProvider>
           <LanguageProvider>
-            <CartProvider>{children}</CartProvider>
+            <CartProvider>
+              <Navbar />
+              <main>{children}</main>
+            </CartProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,45 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-type OrderStatus =
-  | 'new'
-  | 'confirmed'
-  | 'baking'
-  | 'ready'
-  | 'out_for_delivery'
-  | 'completed'
-  | 'cancelled'
-
-interface OrderItem {
-  tierId: string
-  tierLabel: string
-  qty: number
-  unitPrice: number
-  lineTotal: number
-  cookies: number
-}
-
-interface Order {
-  id: string
-  createdAt: string
-  customerName: string
-  phone: string
-  email: string
-  fulfillment: 'pickup' | 'delivery'
-  address?: string
-  city?: string
-  items: OrderItem[]
-  cookiesTotal: number
-  subtotal: number
-  deliveryFee: number
-  total: number
-  status: OrderStatus
-  notes?: string
-  weeklyDrop?: boolean
-  isEventOrder?: boolean
-  referredBy?: string
-}
+import type { Order, OrderStatus } from '@/lib/orders'
 
 interface ShopSettings {
   acceptingOrders: boolean
@@ -86,6 +48,7 @@ export default function AdminPage() {
   const [error, setError] = useState('')
   const [showSettings, setShowSettings] = useState(false)
   const [settingsSaving, setSettingsSaving] = useState(false)
+  const [stats, setStats] = useState<{ weekTotal: number; monthTotal: number; activeSubscribers: number } | null>(null)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin-password')
@@ -111,6 +74,8 @@ export default function AdminPage() {
       }
       if (!ordersRes.ok) throw new Error('Failed to load orders.')
       setOrders(await ordersRes.json())
+      const statsRes = await fetch('/api/admin/stats', { headers: { 'x-admin-password': pwd } })
+      if (statsRes.ok) setStats(await statsRes.json())
       if (settingsRes.ok) setSettings(await settingsRes.json())
       setSavedPassword(pwd)
       sessionStorage.setItem('admin-password', pwd)
@@ -143,8 +108,8 @@ export default function AdminPage() {
 
   const saveSettings = async (updates: Partial<ShopSettings>) => {
     if (!settings) return
-    const optimistic = { ...settings, ...updates }
-    setSettings(optimistic)
+    const previous = settings
+    setSettings({ ...settings, ...updates })
     setSettingsSaving(true)
     try {
       const res = await fetch('/api/settings', {
@@ -152,8 +117,14 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json', 'x-admin-password': savedPassword! },
         body: JSON.stringify(updates),
       })
-      if (res.ok) setSettings(await res.json())
+      if (res.ok) {
+        setSettings(await res.json())
+      } else {
+        setSettings(previous)
+        alert('Failed to save settings.')
+      }
     } catch {
+      setSettings(previous)
       alert('Failed to save settings.')
     } finally {
       setSettingsSaving(false)
@@ -215,10 +186,10 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-stone-100 dark:bg-stone-900 font-sans">
       {/* Header */}
-      <div className="bg-stone-950 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+      <header className="bg-stone-950 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <span className="font-serif text-stone-100">Chicoine</span>
-          <span className="text-stone-600 text-xs">—</span>
+          <span className="text-stone-600 text-xs" aria-hidden="true">—</span>
           <span className="text-xs tracking-widest uppercase text-stone-500">Orders</span>
         </div>
         <div className="flex items-center gap-3">
@@ -234,7 +205,7 @@ export default function AdminPage() {
             Settings
           </button>
           <button
-            onClick={() => fetchAll(savedPassword)}
+            onClick={() => { if (savedPassword) fetchAll(savedPassword) }}
             className="text-xs tracking-widest uppercase text-stone-500 hover:text-stone-300 transition-colors"
           >
             Refresh
@@ -246,9 +217,26 @@ export default function AdminPage() {
             Logout
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="p-4 max-w-3xl mx-auto">
+      {stats && (
+        <div className="bg-stone-900 border-b border-stone-800 px-4 py-3 flex gap-6 text-xs font-sans">
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">This week</p>
+            <p className="text-amber-400 font-medium">${(stats.weekTotal / 100).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">This month</p>
+            <p className="text-amber-400 font-medium">${(stats.monthTotal / 100).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-stone-500 uppercase tracking-widest mb-0.5">Active subs</p>
+            <p className="text-amber-400 font-medium">{stats.activeSubscribers}</p>
+          </div>
+        </div>
+      )}
+
+      <main className="p-4 max-w-3xl mx-auto">
 
         {/* ── Shop Settings Panel ── */}
         {showSettings && settings && (
@@ -265,6 +253,8 @@ export default function AdminPage() {
               </div>
               <button
                 onClick={() => saveSettings({ acceptingOrders: !settings.acceptingOrders })}
+                aria-label={settings.acceptingOrders ? 'Accepting orders — click to pause' : 'Orders paused — click to accept orders'}
+                aria-pressed={settings.acceptingOrders}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
                   settings.acceptingOrders ? 'bg-green-500' : 'bg-stone-300 dark:bg-stone-600'
                 }`}
@@ -378,7 +368,7 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }
@@ -416,7 +406,7 @@ function OrderCard({
             {order.id} · {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        <p className="font-serif text-stone-900 dark:text-stone-100 text-lg tabular-nums">${order.total}.00</p>
+        <p className="font-serif text-stone-900 dark:text-stone-100 text-lg tabular-nums">${(order.total / 100).toFixed(2)}</p>
       </div>
 
       <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border-b border-stone-100 dark:border-stone-700">
@@ -464,6 +454,7 @@ function OrderCard({
         {next && (
           <button
             onClick={() => onStatusChange(order.id, next)}
+            aria-label={`Advance ${order.customerName}'s order to ${STATUS_LABELS[next]}`}
             className="bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-stone-300 text-white dark:text-stone-900 text-[10px] tracking-widest uppercase px-3 py-2 transition-colors font-medium"
           >
             Mark {STATUS_LABELS[next]} →
@@ -472,6 +463,7 @@ function OrderCard({
         <select
           value={order.status}
           onChange={(e) => onStatusChange(order.id, e.target.value as OrderStatus)}
+          aria-label={`Order status for ${order.customerName}`}
           className="text-xs border border-stone-200 dark:border-stone-600 px-2 py-1.5 text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 focus:outline-none focus:border-stone-400 transition-colors"
         >
           {(Object.entries(STATUS_LABELS) as [OrderStatus, string][]).map(([val, label]) => (

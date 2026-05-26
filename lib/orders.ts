@@ -46,7 +46,9 @@ export function readOrders(): Order[] {
   try {
     if (!fs.existsSync(DATA_FILE)) return []
     const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-    return JSON.parse(raw)
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed as Order[]
   } catch {
     return []
   }
@@ -59,9 +61,26 @@ function writeOrders(orders: Order[]) {
 }
 
 export function createOrder(data: Omit<Order, 'id' | 'createdAt' | 'status'>): Order {
+  if (!data.items || data.items.length === 0) {
+    throw new Error('Order must contain at least one item')
+  }
+  if (data.fulfillment === 'delivery' && !data.address?.trim()) {
+    throw new Error('Street address is required for delivery orders')
+  }
+  if (data.fulfillment === 'delivery' && !data.city?.trim()) {
+    throw new Error('City is required for delivery orders')
+  }
+
+  // Recompute lineTotal for each item to ensure it matches qty * unitPrice.
+  const sanitisedItems: OrderItem[] = data.items.map((item) => ({
+    ...item,
+    lineTotal: item.qty * item.unitPrice,
+  }))
+
   const orders = readOrders()
   const order: Order = {
     ...data,
+    items: sanitisedItems,
     id: `CC-${Date.now()}`,
     createdAt: new Date().toISOString(),
     status: 'new',
@@ -69,6 +88,11 @@ export function createOrder(data: Omit<Order, 'id' | 'createdAt' | 'status'>): O
   orders.unshift(order)
   writeOrders(orders)
   return order
+}
+
+export function getOrderById(id: string): Order | null {
+  const orders = readOrders()
+  return orders.find((o) => o.id === id) ?? null
 }
 
 export function updateOrderStatus(id: string, status: OrderStatus): Order | null {

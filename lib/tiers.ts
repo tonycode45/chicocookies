@@ -33,7 +33,7 @@ export const TIERS: Tier[] = [
   },
 ]
 
-export function getTierById(id: TierId): Tier | undefined {
+export function getTierById(id: string): Tier | undefined {
   return TIERS.find((t) => t.id === id)
 }
 
