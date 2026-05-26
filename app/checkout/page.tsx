@@ -1,13 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { TIERS, TierId } from '@/lib/tiers'
 import { useLanguage } from '@/context/LanguageContext'
 import { translations } from '@/lib/translations'
 
-const DELIVERY_FEE = 5
+type FeeStatus = 'idle' | 'loading' | 'ok' | 'error'
+
+const DELIVERY_MINIMUM = 30
 
 export default function CheckoutPage() {
   const { items, cartLines, hasItems, subtotal, setQty, clearCart } = useCart()
@@ -17,6 +19,10 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({ customerName: '', phone: '', email: '', address: '', city: '', notes: '' })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [feeStatus, setFeeStatus] = useState<FeeStatus>('idle')
+  const [feeCents, setFeeCents] = useState<number>(0)
+  const [feeError, setFeeError] = useState<string>('')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -24,8 +30,54 @@ export default function CheckoutPage() {
     if (tier && ['small','medium','large'].includes(tier)) setQty(tier as TierId, 1)
   }, [setQty])
 
-  const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
-  const total = subtotal + deliveryFee
+  const checkDeliveryFee = useCallback(async (address: string, city: string) => {
+    if (!address.trim() || !city.trim()) {
+      setFeeStatus('idle')
+      return
+    }
+    setFeeStatus('loading')
+    try {
+      const res = await fetch('/api/delivery-fee', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address, city }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setFeeStatus('error')
+        setFeeError(data.error || 'Could not calculate delivery fee.')
+      } else {
+        setFeeStatus('ok')
+        setFeeCents(data.feeCents)
+      }
+    } catch {
+      setFeeStatus('error')
+      setFeeError('Could not calculate delivery fee.')
+    }
+  }, [])
+
+  // Debounce fee check when address or city changes while delivery is selected
+  useEffect(() => {
+    if (fulfillment !== 'delivery') return
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    setFeeStatus('idle')
+    if (subtotal < DELIVERY_MINIMUM) return
+    if (form.address.trim() && form.city.trim()) {
+      debounceRef.current = setTimeout(() => checkDeliveryFee(form.address, form.city), 700)
+    }
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [form.address, form.city, fulfillment, subtotal, checkDeliveryFee])
+
+  // Reset fee state when switching fulfillment
+  useEffect(() => {
+    setFeeStatus('idle')
+    setFeeCents(0)
+    setFeeError('')
+  }, [fulfillment])
+
+  const deliveryFeeDollars = fulfillment === 'delivery' && feeStatus === 'ok' ? feeCents / 100 : 0
+  const total = subtotal + deliveryFeeDollars
+  const belowDeliveryMinimum = fulfillment === 'delivery' && hasItems && subtotal < DELIVERY_MINIMUM
 
   const validate = () => {
     const errs: Record<string, string> = {}
@@ -38,11 +90,14 @@ export default function CheckoutPage() {
     return errs
   }
 
+  const deliveryBlocked = fulfillment === 'delivery' && (belowDeliveryMinimum || feeStatus !== 'ok')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!hasItems) return
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    if (deliveryBlocked) return
     setErrors({})
     setLoading(true)
     try {
@@ -168,15 +223,29 @@ export default function CheckoutPage() {
               ))}
               <div className="flex justify-between text-sm text-text-muted font-sans">
                 <span>{t.checkout.summary.delivery}</span>
-                <span>{deliveryFee === 0 ? t.checkout.summary.complimentary : `$${deliveryFee}.00`}</span>
+                <span>
+                  {fulfillment === 'pickup' && t.checkout.summary.complimentary}
+                  {fulfillment === 'delivery' && feeStatus === 'idle' && '—'}
+                  {fulfillment === 'delivery' && feeStatus === 'loading' && 'Calculating…'}
+                  {fulfillment === 'delivery' && feeStatus === 'ok' && `$${(feeCents / 100).toFixed(2)}`}
+                  {fulfillment === 'delivery' && feeStatus === 'error' && (
+                    <span className="text-red-400">Unavailable</span>
+                  )}
+                </span>
               </div>
+              {fulfillment === 'delivery' && feeStatus === 'error' && (
+                <p className="text-red-400 text-xs leading-snug">{feeError}</p>
+              )}
+              {belowDeliveryMinimum && (
+                <p className="text-red-400 text-xs leading-snug">{t.checkout.errors.deliveryMinimum}</p>
+              )}
               <div className="border-t border-text-primary/10 pt-3 flex justify-between items-baseline">
                 <span className="text-xs tracking-widest uppercase text-text-muted font-sans">{t.checkout.summary.total}</span>
-                <span className="font-serif text-text-primary text-2xl">${total}.00</span>
+                <span className="font-serif text-text-primary text-2xl">${total.toFixed(2)}</span>
               </div>
             </div>
 
-            <button type="submit" disabled={loading || !hasItems}
+            <button type="submit" disabled={loading || !hasItems || deliveryBlocked}
               className="w-full bg-gold hover:bg-gold-warm disabled:opacity-40 text-bg text-xs tracking-widest uppercase font-sans font-medium py-5 transition-colors">
               {loading ? t.checkout.submitting : t.checkout.submit}
             </button>

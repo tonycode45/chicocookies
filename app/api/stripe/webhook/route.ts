@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import getStripe from '@/lib/stripe'
 import { updateOrderStatus } from '@/lib/db/orders'
 import { createSubscription, updateSubscriptionStatus } from '@/lib/db/subscriptions'
-import { sendReceiptEmail } from '@/lib/email/receipt'
+import { sendOrderStatusEmail } from '@/lib/email/order-status'
 import Stripe from 'stripe'
 
 export async function POST(req: NextRequest) {
@@ -22,14 +22,8 @@ export async function POST(req: NextRequest) {
     const orderId = session.metadata?.orderId
 
     if (session.mode === 'payment' && orderId) {
-      await updateOrderStatus(orderId, 'confirmed')
-      if (session.customer_email) {
-        await sendReceiptEmail({
-          to: session.customer_email,
-          orderId,
-          total: session.amount_total ?? 0,
-        })
-      }
+      const order = await updateOrderStatus(orderId, 'confirmed')
+      if (order) await sendOrderStatusEmail(order)
     }
 
     if (session.mode === 'subscription' && session.subscription) {

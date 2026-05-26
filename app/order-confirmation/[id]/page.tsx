@@ -2,9 +2,10 @@ import { getOrderById } from '@/lib/db/orders'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import OrderStatusTimeline from './OrderStatusTimeline'
 
 export const metadata: Metadata = {
-  title: 'Order Confirmed — Chicoine Cookies',
+  title: 'Track Your Order — Chicoine Cookies',
 }
 
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,8 +19,8 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <p className="text-xs tracking-widest uppercase text-gold mb-6 font-sans">Order Confirmed</p>
-        <h1 className="font-serif text-4xl text-text-primary mb-3">Your cookies are being baked.</h1>
-        <p className="text-text-muted font-sans text-sm mb-10">A receipt has been sent to {order.email}.</p>
+        <h1 className="font-serif text-4xl text-text-primary mb-3">Thank you for your order.</h1>
+        <p className="text-text-muted font-sans text-sm mb-10">A confirmation has been sent to {order.email}.</p>
 
         <div className="border border-white/10 p-6 text-left space-y-3 mb-10">
           <div className="flex justify-between text-sm font-sans">
@@ -39,6 +40,8 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             <span className="font-serif text-text-primary text-xl">{totalDisplay}</span>
           </div>
         </div>
+
+        <OrderStatusTimeline orderId={order.id} initialStatus={order.status} fulfillment={order.fulfillment} />
 
         <p className="text-text-muted text-xs font-sans mb-8">
           {order.fulfillment === 'pickup'

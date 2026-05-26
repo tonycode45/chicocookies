@@ -120,6 +120,7 @@ const en = {
       phoneRequired: 'Phone number is required',
       addressRequired: 'Address is required for delivery',
       cityRequired: 'City is required for delivery',
+      deliveryMinimum: 'Delivery requires a minimum order of $30.',
     },
     options: 'Options',
     weeklyDrop: {
@@ -278,6 +279,7 @@ const fr: typeof en = {
       phoneRequired: 'Le num\u00e9ro de t\u00e9l\u00e9phone est requis',
       addressRequired: "L\u2019adresse est requise pour la livraison",
       cityRequired: 'La ville est requise pour la livraison',
+      deliveryMinimum: 'La livraison n\u00e9cessite une commande minimale de 30\u00a0$.',
     },
     options: 'Options',
     weeklyDrop: {
@@ -436,6 +438,7 @@ const es: typeof en = {
       phoneRequired: 'El n\u00famero de tel\u00e9fono es obligatorio',
       addressRequired: 'La direcci\u00f3n es obligatoria para la entrega',
       cityRequired: 'La ciudad es obligatoria para la entrega',
+      deliveryMinimum: 'La entrega requiere un pedido m\u00ednimo de $30.',
     },
     options: 'Opciones',
     weeklyDrop: {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getOrderById, updateOrderStatus, OrderStatus } from '@/lib/db/orders'
+import { sendOrderStatusEmail } from '@/lib/email/order-status'
 
 function isAuthorized(req: NextRequest) {
   return !!process.env.ADMIN_PASSWORD && req.headers.get('x-admin-password') === process.env.ADMIN_PASSWORD
@@ -19,5 +20,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!VALID_STATUSES.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   const order = await updateOrderStatus(params.id, status as OrderStatus)
   if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  if (status === 'out_for_delivery' || status === 'completed') {
+    try {
+      await sendOrderStatusEmail(order)
+    } catch (err) {
+      console.error('Failed to send status email:', err)
+    }
+  }
+
   return NextResponse.json(order)
 }

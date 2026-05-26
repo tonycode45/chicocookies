@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import getStripe from '@/lib/stripe'
 import { createOrder } from '@/lib/db/orders'
 import { getTierById, TierId } from '@/lib/tiers'
-import { sendReceiptEmail } from '@/lib/email/receipt'
-
-const DELIVERY_FEE = 500 // cents
+import { calculateDeliveryFee } from '@/lib/delivery'
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,7 +34,20 @@ export async function POST(req: NextRequest) {
       cookies: tier.cookies * qty,
     }))
     const subtotal = dbItems.reduce((s, i) => s + i.lineTotal, 0)
-    const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
+
+    if (fulfillment === 'delivery' && subtotal < 3000) {
+      return NextResponse.json({ error: 'Delivery requires a minimum order of $30.' }, { status: 400 })
+    }
+
+    let deliveryFee = 0
+    if (fulfillment === 'delivery') {
+      const feeResult = await calculateDeliveryFee(address, city)
+      if (!feeResult.ok) {
+        return NextResponse.json({ error: feeResult.error }, { status: 422 })
+      }
+      deliveryFee = feeResult.feeCents
+    }
+
     const orderId = `CC-${Date.now()}`
 
     const total = subtotal + deliveryFee
@@ -52,8 +63,6 @@ export async function POST(req: NextRequest) {
       weeklyDrop: false, isEventOrder: Boolean(isEventOrder),
       referredBy: referredBy?.trim() || undefined,
     })
-
-    await sendReceiptEmail({ to: email.trim(), orderId, total })
 
     const origin = req.headers.get('origin') || 'http://localhost:3000'
 
