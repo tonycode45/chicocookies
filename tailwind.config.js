@@ -5,23 +5,24 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx}',
     './context/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        bg: '#0a0600',
-        'bg-alt': '#0d0904',
-        surface: '#120c02',
-        card: '#120e08',
+        bg: 'rgb(var(--color-bg) / <alpha-value>)',
+        'bg-alt': 'rgb(var(--color-bg-alt) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        card: 'rgb(var(--color-card) / <alpha-value>)',
         gold: {
-          DEFAULT: '#dc8c28',
-          warm: '#ffcf7a',
-          hover: '#c47d22',
+          DEFAULT: 'rgb(var(--color-gold) / <alpha-value>)',
+          warm: 'rgb(var(--color-gold-warm) / <alpha-value>)',
+          hover: 'rgb(var(--color-gold-hover) / <alpha-value>)',
         },
         text: {
-          primary: '#fdf6ec',
-          muted: '#7a6a55',
-          dim: '#5a5040',
-          faint: '#3a2a14',
+          primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+          muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+          dim: 'rgb(var(--color-text-dim) / <alpha-value>)',
+          faint: 'rgb(var(--color-text-faint) / <alpha-value>)',
         },
       },
       fontFamily: {

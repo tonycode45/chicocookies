@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
       <body className="font-sans bg-bg text-text-primary antialiased">
         <ThemeProvider>
           <LanguageProvider>

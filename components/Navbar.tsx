@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/translations';
 import { useTheme } from '@/context/ThemeContext';
 import { useCart } from '@/context/CartContext';
 
@@ -9,6 +10,7 @@ const LANGS = ['en', 'fr', 'es'] as const;
 
 export function Navbar() {
   const { lang, setLang } = useLanguage();
+  const t = translations[lang];
   const { theme, toggleTheme } = useTheme();
   const { hasItems, totalPacks } = useCart();
 
@@ -39,7 +41,7 @@ export function Navbar() {
           href="#order"
           className="text-text-primary text-[11px] tracking-[3px] uppercase px-3 py-1 transition-colors hover:text-gold"
         >
-          Order
+          {t.nav.order}
         </a>
 
         <div className="w-px h-5 bg-text-primary/[0.08] mx-2" />

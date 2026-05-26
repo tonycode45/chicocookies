@@ -22,7 +22,7 @@ export function IngredientsSection() {
         {t.home.ingredients.items.map((name) => (
           <span
             key={name}
-            className="border border-text-primary/[0.1] px-5 py-2.5 text-[13px] text-text-primary tracking-wide transition-colors hover:border-gold/30"
+            className="border border-text-primary/[0.1] px-5 py-2.5 text-[13px] text-text-primary tracking-wide transition-colors hover:border-gold/30 hover:bg-gold/[0.03]"
           >
             {name}
           </span>

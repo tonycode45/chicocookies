@@ -22,7 +22,7 @@ export default function CheckoutPage() {
     const params = new URLSearchParams(window.location.search)
     const tier = params.get('tier')
     if (tier && ['small','medium','large'].includes(tier)) setQty(tier as TierId, 1)
-  }, [])
+  }, [setQty])
 
   const deliveryFee = fulfillment === 'delivery' ? DELIVERY_FEE : 0
   const total = subtotal + deliveryFee
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
               {TIERS.map((tier) => {
                 const qty = items[tier.id as TierId] ?? 0
                 return (
-                  <div key={tier.id} className={`flex items-center justify-between border px-4 py-4 transition-colors ${qty > 0 ? 'border-gold' : 'border-white/10'}`}>
+                  <div key={tier.id} className={`flex items-center justify-between border px-4 py-4 transition-colors ${qty > 0 ? 'border-gold' : 'border-text-primary/10'}`}>
                     <div>
                       <p className="font-serif text-text-primary">{tier.label}</p>
                       <p className="text-text-muted text-xs font-sans mt-0.5">${tier.price}.00 {t.checkout.perPack}</p>
@@ -94,10 +94,10 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <button type="button" onClick={() => setQty(tier.id as TierId, qty - 1)}
-                        className="w-10 h-10 border border-white/10 flex items-center justify-center text-text-muted hover:border-gold hover:text-gold transition-colors">−</button>
+                        className="w-10 h-10 border border-text-primary/10 flex items-center justify-center text-text-muted hover:border-gold hover:text-gold transition-colors">−</button>
                       <span className="font-serif text-lg text-text-primary w-5 text-center">{qty}</span>
                       <button type="button" onClick={() => setQty(tier.id as TierId, qty + 1)}
-                        className="w-10 h-10 border border-white/10 flex items-center justify-center text-text-muted hover:border-gold hover:text-gold transition-colors">+</button>
+                        className="w-10 h-10 border border-text-primary/10 flex items-center justify-center text-text-muted hover:border-gold hover:text-gold transition-colors">+</button>
                     </div>
                   </div>
                 )
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
                 {(['pickup','delivery'] as const).map((opt) => (
                   <button key={opt} type="button" onClick={() => setFulfillment(opt)}
                     className={`py-4 px-5 border text-xs tracking-widest uppercase font-sans transition-colors text-left ${
-                      fulfillment === opt ? 'border-gold text-gold' : 'border-white/10 text-text-muted hover:border-white/20'
+                      fulfillment === opt ? 'border-gold text-gold' : 'border-text-primary/10 text-text-muted hover:border-white/20'
                     }`}>
                     <span className="block font-medium">{t.checkout[opt].label}</span>
                     <span className="block mt-0.5 text-[10px] opacity-60">{t.checkout[opt].sub}</span>
@@ -134,7 +134,7 @@ export default function CheckoutPage() {
                   <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{label} <span className="text-gold">*</span></label>
                   <input type={type} value={form[key as keyof typeof form]}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors" />
+                    className="w-full border-b border-text-primary/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors" />
                   {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
                 </div>
               ))}
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
                       <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{label} <span className="text-gold">*</span></label>
                       <input type="text" value={form[key as keyof typeof form]}
                         onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                        className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors" />
+                        className="w-full border-b border-text-primary/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors" />
                       {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
                     </div>
                   ))}
@@ -154,12 +154,12 @@ export default function CheckoutPage() {
               <div>
                 <label className="block text-xs tracking-widest uppercase text-text-muted mb-2 font-sans">{t.checkout.fields.notes}</label>
                 <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  className="w-full border-b border-white/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors resize-none" rows={2} />
+                  className="w-full border-b border-text-primary/10 bg-transparent py-3 text-text-primary text-sm focus:outline-none focus:border-gold transition-colors resize-none" rows={2} />
               </div>
             </div>
 
             {/* Order summary */}
-            <div className="border border-white/10 p-6 space-y-2.5">
+            <div className="border border-text-primary/10 p-6 space-y-2.5">
               {cartLines.map((line) => (
                 <div key={line.tier.id} className="flex justify-between text-sm font-sans">
                   <span className="text-text-muted">{line.qty} × {line.tier.label}</span>
@@ -170,7 +170,7 @@ export default function CheckoutPage() {
                 <span>{t.checkout.summary.delivery}</span>
                 <span>{deliveryFee === 0 ? t.checkout.summary.complimentary : `$${deliveryFee}.00`}</span>
               </div>
-              <div className="border-t border-white/10 pt-3 flex justify-between items-baseline">
+              <div className="border-t border-text-primary/10 pt-3 flex justify-between items-baseline">
                 <span className="text-xs tracking-widest uppercase text-text-muted font-sans">{t.checkout.summary.total}</span>
                 <span className="font-serif text-text-primary text-2xl">${total}.00</span>
               </div>

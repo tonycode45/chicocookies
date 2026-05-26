@@ -12,12 +12,11 @@ interface ThemeContextValue {
 const VALID_THEMES: Theme[] = ['light', 'dark']
 const STORAGE_KEY = 'chicoine-theme'
 
-// Sentinel used before hydration so we never render with a wrong default.
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Start as undefined so we can detect "not yet hydrated" and avoid a flash.
-  const [theme, setTheme] = useState<Theme | undefined>(undefined)
+  // Default to 'dark' so children render immediately — no blank flash.
+  const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -39,10 +38,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, next)
     document.documentElement.classList.toggle('dark', next === 'dark')
   }
-
-  // Suppress rendering until the real theme is known to avoid a flash of the
-  // wrong theme on first paint.
-  if (theme === undefined) return null
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

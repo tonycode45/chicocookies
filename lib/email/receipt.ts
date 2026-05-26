@@ -12,7 +12,7 @@ export async function sendReceiptEmail({ to, orderId, total }: ReceiptParams) {
   const totalDisplay = `$${(total / 100).toFixed(2)}`
 
   await getResend().emails.send({
-    from: 'Chicoine Cookies <orders@chicoinecookies.com>',
+    from: 'Chicoine Cookies <onboarding@resend.dev>',
     to,
     subject: `Your cookie order is confirmed — ${orderId}`,
     html: `

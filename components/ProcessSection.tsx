@@ -15,9 +15,11 @@ export function ProcessSection() {
       </h2>
       <div className="gold-divider mb-10" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-[900px] mx-auto text-center">
+      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12 max-w-[900px] mx-auto text-center">
+        {/* Subtle connector line between steps — desktop only */}
+        <div className="hidden md:block absolute top-[9px] left-[16.67%] right-[16.67%] h-px bg-gold/20" />
         {t.home.howItWorks.steps.map((step) => (
-          <div key={step.n}>
+          <div key={step.n} className="relative">
             <p className="text-gold text-xs tracking-[3px] font-semibold mb-4">{step.n}</p>
             <h3 className="font-serif text-xl font-normal mb-3 text-text-primary">
               {step.title}
