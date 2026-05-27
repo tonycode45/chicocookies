@@ -4,3 +4,7 @@ node_modules/
 .vercel
 .netlify/
 .worktrees/
+.env*.local
+
+# Local Netlify folder
+.netlify
