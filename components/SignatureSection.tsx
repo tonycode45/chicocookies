@@ -28,7 +28,7 @@ export function SignatureSection() {
       </div>
 
       <p className="font-serif text-[14px] italic text-text-muted/70 mt-5 tracking-wide">
-        Fait à la main, avec soin, pour chaque occasion.
+        {t.home.signature.tagline}
       </p>
     </section>
   );

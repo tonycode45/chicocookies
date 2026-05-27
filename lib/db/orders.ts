@@ -35,6 +35,29 @@ export interface Order {
   stripePaymentIntentId?: string
 }
 
+export interface PublicOrder {
+  id: string
+  createdAt: string
+  status: OrderStatus
+  fulfillment: 'pickup' | 'delivery'
+  items: OrderItem[]
+  cookiesTotal: number
+  total: number
+}
+
+// Safe projection for public (unauthenticated) endpoints — no customer PII.
+export function toPublicOrder(o: Order): PublicOrder {
+  return {
+    id: o.id,
+    createdAt: o.createdAt,
+    status: o.status,
+    fulfillment: o.fulfillment,
+    items: o.items,
+    cookiesTotal: o.cookiesTotal,
+    total: o.total,
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToOrder(row: any): Order {
   return {

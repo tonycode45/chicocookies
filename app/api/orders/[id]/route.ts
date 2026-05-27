@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getOrderById, updateOrderStatus, OrderStatus } from '@/lib/db/orders'
+import { getOrderById, updateOrderStatus, OrderStatus, toPublicOrder } from '@/lib/db/orders'
 import { sendOrderStatusEmail } from '@/lib/email/order-status'
 
 function isAuthorized(req: NextRequest) {
@@ -11,7 +11,8 @@ const VALID_STATUSES = ['new','confirmed','baking','ready','out_for_delivery','c
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const order = await getOrderById(params.id)
   if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(order)
+  // Public tracking endpoint — order IDs are guessable, so expose no PII.
+  return NextResponse.json(toPublicOrder(order))
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {

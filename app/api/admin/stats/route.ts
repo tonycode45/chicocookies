@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
   const [weekRows, monthRows, activeSubCount] = await Promise.all([
-    sql`SELECT COALESCE(SUM(total), 0) as total FROM orders WHERE created_at >= ${startOfWeek.toISOString()} AND status != 'cancelled'`,
-    sql`SELECT COALESCE(SUM(total), 0) as total FROM orders WHERE created_at >= ${startOfMonth.toISOString()} AND status != 'cancelled'`,
+    sql`SELECT COALESCE(SUM(total), 0) as total FROM orders WHERE created_at >= ${startOfWeek.toISOString()} AND status NOT IN ('new','cancelled')`,
+    sql`SELECT COALESCE(SUM(total), 0) as total FROM orders WHERE created_at >= ${startOfMonth.toISOString()} AND status NOT IN ('new','cancelled')`,
     getActiveSubscriptionCount(),
   ])
 

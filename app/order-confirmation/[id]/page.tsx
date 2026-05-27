@@ -20,7 +20,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       <div className="max-w-md w-full text-center">
         <p className="text-xs tracking-widest uppercase text-gold mb-6 font-sans">Order Confirmed</p>
         <h1 className="font-serif text-4xl text-text-primary mb-3">Thank you for your order.</h1>
-        <p className="text-text-muted font-sans text-sm mb-10">A confirmation has been sent to {order.email}.</p>
+        <p className="text-text-muted font-sans text-sm mb-10">Save this page to track your order — the status below updates automatically.</p>
 
         <div className="border border-white/10 p-6 text-left space-y-3 mb-10">
           <div className="flex justify-between text-sm font-sans">

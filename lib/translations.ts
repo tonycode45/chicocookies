@@ -1,7 +1,7 @@
 export type Lang = 'en' | 'fr' | 'es'
 
 const en = {
-  nav: { order: 'Order' },
+  nav: { order: 'Order', myOrders: 'My Orders' },
   header: { toggleTheme: 'Toggle theme' },
   home: {
     hero: {
@@ -14,6 +14,7 @@ const en = {
     signature: {
       badge: 'The Signature',
       headline: 'One cookie, perfected.',
+      tagline: 'Handcrafted, with care, for every occasion.',
       description:
         "Chicoine's signature peanut butter oatmeal chocolate chip cookie was designed from the start to be the last cookie you'll ever need to try. Soft at the center, golden at the edge, made by hand every single time.",
     },
@@ -47,7 +48,7 @@ const en = {
       headline: 'Simple from start to finish',
       steps: [
         { n: '01', title: 'Choose Your Quantity', desc: 'Pick a size — 2, 6, or 12 cookies per pack. Add as many packs as you need.' },
-        { n: '02', title: 'Pickup or Delivery', desc: 'Pickup is complimentary. Local delivery is a flat $5.' },
+        { n: '02', title: 'Pickup or Delivery', desc: 'Pickup is complimentary. Local delivery is calculated by distance at checkout.' },
         { n: '03', title: 'Freshly Baked', desc: 'We confirm your order, bake fresh, and you enjoy.' },
       ],
     },
@@ -82,7 +83,7 @@ const en = {
       },
       delivery: {
         badge: 'Delivery',
-        headline: '$5 flat fee',
+        headline: 'Calculated by distance',
         desc: 'We deliver within the local area. Provide your address at checkout and we handle the rest.',
       },
       footer: 'Payment collected on pickup or delivery\u00a0·\u00a0Cash & e-transfer accepted',
@@ -99,7 +100,7 @@ const en = {
     popular: '\u00b7 Most popular',
     fulfillmentMethod: 'Fulfillment Method',
     pickup: { label: 'Pickup', sub: 'Complimentary' },
-    delivery: { label: 'Delivery', sub: '+$5.00' },
+    delivery: { label: 'Delivery', sub: 'Based on distance' },
     yourInfo: 'Your Information',
     fields: {
       fullName: 'Full Name',
@@ -160,7 +161,7 @@ const en = {
 }
 
 const fr: typeof en = {
-  nav: { order: 'Commander' },
+  nav: { order: 'Commander', myOrders: 'Mes commandes' },
   header: { toggleTheme: 'Changer le th\u00e8me' },
   home: {
     hero: {
@@ -173,6 +174,7 @@ const fr: typeof en = {
     signature: {
       badge: 'La Signature',
       headline: 'Un biscuit, perfectionn\u00e9.',
+      tagline: 'Fait \u00e0 la main, avec soin, pour chaque occasion.',
       description:
         "Le biscuit signature de Chicoine \u2014 beurre d\u2019arachide, flocons d\u2019avoine et p\u00e9pites de chocolat \u2014 a \u00e9t\u00e9 con\u00e7u d\u00e8s le d\u00e9part pour \u00eatre le dernier biscuit que vous essaierez. Moelleux au centre, dor\u00e9 sur les bords, fait \u00e0 la main \u00e0 chaque fois.",
     },
@@ -206,7 +208,7 @@ const fr: typeof en = {
       headline: 'Simple du d\u00e9but \u00e0 la fin',
       steps: [
         { n: '01', title: 'Choisissez votre quantit\u00e9', desc: 'Choisissez une taille \u2014 2, 6 ou 12 biscuits par paquet. Ajoutez autant de paquets que vous voulez.' },
-        { n: '02', title: 'Cueillette ou livraison', desc: 'La cueillette est gratuite. La livraison locale est fixe \u00e0 5\u00a0$.' },
+        { n: '02', title: 'Cueillette ou livraison', desc: 'La cueillette est gratuite. La livraison locale est calcul\u00e9e selon la distance au paiement.' },
         { n: '03', title: 'Fra\u00eechement cuits', desc: 'On confirme votre commande, on cuit frais et vous vous r\u00e9galez.' },
       ],
     },
@@ -241,7 +243,7 @@ const fr: typeof en = {
       },
       delivery: {
         badge: 'Livraison',
-        headline: 'Frais fixe de 5\u00a0$',
+        headline: 'Calcul\u00e9e selon la distance',
         desc: 'Nous livrons dans la r\u00e9gion locale. Fournissez votre adresse lors du paiement et nous nous occupons du reste.',
       },
       footer: 'Paiement \u00e0 la cueillette ou \u00e0 la livraison\u00a0·\u00a0Comptant et virement accept\u00e9s',
@@ -258,7 +260,7 @@ const fr: typeof en = {
     popular: '\u00b7 Le plus populaire',
     fulfillmentMethod: 'Mode de livraison',
     pickup: { label: 'Cueillette', sub: 'Gratuite' },
-    delivery: { label: 'Livraison', sub: '+5,00\u00a0$' },
+    delivery: { label: 'Livraison', sub: 'Selon la distance' },
     yourInfo: 'Vos informations',
     fields: {
       fullName: 'Nom complet',
@@ -319,7 +321,7 @@ const fr: typeof en = {
 }
 
 const es: typeof en = {
-  nav: { order: 'Pedir' },
+  nav: { order: 'Pedir', myOrders: 'Mis pedidos' },
   header: { toggleTheme: 'Cambiar tema' },
   home: {
     hero: {
@@ -332,6 +334,7 @@ const es: typeof en = {
     signature: {
       badge: 'La Firma',
       headline: 'Una galleta, perfeccionada.',
+      tagline: 'Hecho a mano, con cuidado, para cada ocasión.',
       description:
         'La galleta signature de Chicoine \u2014 mantequilla de man\u00ed, avena y chispas de chocolate \u2014 fue dise\u00f1ada desde el principio para ser la \u00faltima galleta que necesitar\u00e1s probar. Suave en el centro, dorada en los bordes, hecha a mano cada vez.',
     },
@@ -365,7 +368,7 @@ const es: typeof en = {
       headline: 'Simple de principio a fin',
       steps: [
         { n: '01', title: 'Elige tu cantidad', desc: 'Elige un tama\u00f1o \u2014 2, 6 o 12 galletas por paquete. A\u00f1ade tantos paquetes como necesites.' },
-        { n: '02', title: 'Recogida o entrega', desc: 'La recogida es gratuita. La entrega local tiene un precio fijo de $5.' },
+        { n: '02', title: 'Recogida o entrega', desc: 'La recogida es gratuita. La entrega local se calcula por distancia al pagar.' },
         { n: '03', title: 'Reci\u00e9n horneadas', desc: 'Confirmamos tu pedido, horneamos fresco y t\u00fa disfrutas.' },
       ],
     },
@@ -400,7 +403,7 @@ const es: typeof en = {
       },
       delivery: {
         badge: 'Entrega',
-        headline: 'Tarifa fija de $5',
+        headline: 'Calculada por distancia',
         desc: 'Entregamos en el \u00e1rea local. Proporciona tu direcci\u00f3n al pagar y nosotros nos encargamos del resto.',
       },
       footer: 'Pago en recogida o entrega\u00a0·\u00a0Efectivo y transferencia aceptados',
@@ -417,7 +420,7 @@ const es: typeof en = {
     popular: '\u00b7 El m\u00e1s popular',
     fulfillmentMethod: 'M\u00e9todo de entrega',
     pickup: { label: 'Recogida', sub: 'Gratuita' },
-    delivery: { label: 'Entrega', sub: '+$5.00' },
+    delivery: { label: 'Entrega', sub: 'Según la distancia' },
     yourInfo: 'Tu informaci\u00f3n',
     fields: {
       fullName: 'Nombre completo',
